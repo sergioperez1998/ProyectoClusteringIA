@@ -3,20 +3,18 @@ from codigo.punto import Punto
 from math import sqrt, dist
 
 
-# Leer datos de entrada
+# Método para leer los datos de entrada, provenientes de un archivo csv.
 def leer_datos(path):
     with open(path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         listado_puntos = []
         for row in csv_reader:
             x = Punto(int(row[0]), int(row[1]))
-            # print(x)
             listado_puntos.append(x)
-
     return listado_puntos
 
 
-# Método Local 1 - Aproximación basada en tres puntos alejados entre si
+# Objetivo específico 2 - Método Local: Aproximación basada en tres puntos alejados entre sí.
 def encontrar_circulo(punto1, punto2, punto3):
     x12 = punto1.get_x() - punto2.get_x()
     x13 = punto1.get_x() - punto3.get_x()
@@ -69,7 +67,7 @@ def encontrar_circulo(punto1, punto2, punto3):
 
     return [centro, radio]
 
-
+# Objetivo específico 3 - Calculo de los grados de pertenencia de un punto a un conjunto de clusters.
 def grado_pertenencia(punto1, circunferencias):
     grados_punto = []
     for circunferencia in circunferencias:
