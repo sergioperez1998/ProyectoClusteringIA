@@ -1,5 +1,6 @@
 import csv
 from codigo.punto import Punto
+from codigo.circunferencia import Circunferencia
 from math import sqrt, dist
 import numpy as np
 import operator
@@ -10,7 +11,7 @@ def leer_datos(path):
         csv_reader = csv.reader(csv_file, delimiter=',')
         listado_puntos = []
         for row in csv_reader:
-            x = Punto(int(row[0]), int(row[1]))
+            x = Punto(float(row[0]), float(row[1]))
             listado_puntos.append(x)
     return listado_puntos
 
@@ -66,7 +67,7 @@ def encontrar_circulo(punto1, punto2, punto3):
     print("Radio = ", radio)
     print("-------------------------------")
 
-    return [centro, radio]
+    return Circunferencia(centro, radio)
 
 
 # Objetivo específico 3 - Calculo de los grados de pertenencia de un punto a un conjunto de clusters.
@@ -74,8 +75,6 @@ def grado_pertenencia(punto, circunferencias):
     grados_punto = []
     distancias_punto = []
     for circunferencia in circunferencias:
-        # dist_centro = abs(dist([punto.get_x(), punto.get_y()], [circunferencia.get_centro().get_x(),
-        #                                                         circunferencia.get_centro().get_y()]) - circunferencia.get_radio())
         a = np.array((punto.get_x(), punto.get_y()))
         b = np.array((circunferencia.get_centro().get_x(), circunferencia.get_centro().get_y()))
         dist_centro = abs(np.linalg.norm(a-b) - circunferencia.get_radio())
@@ -129,7 +128,108 @@ def actualizar_cluster(circunferencias, puntos):
         print(cluster.get_radio())
         print("------------------")
 
-def asignar_puntos(circunferencias, puntos):
+def asignar_puntos2(circunferencias, puntos):
     for p in puntos:
-        index, value = max(enumerate(p.get_grado_pertenencia()), key=operator.itemgetter(1))
-        circunferencias[index].get_lista_puntos().append(p)
+        max_value = max(p.get_grado_pertenencia())
+        max_index = p.get_grado_pertenencia().index(max_value)
+        circunferencias[max_index].get_lista_puntos().append(p)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Objetivo específico 2 - Método Local: Aproximación basada en tres puntos alejados entre sí.
+def encontrar_circulo2(punto1, punto2, punto3):
+    A = np.array([punto1.get_x(), punto1.get_y()])
+    B = np.array([punto2.get_x(), punto2.get_y()])
+    C = np.array([punto3.get_x(), punto3.get_y()])
+    a = np.linalg.norm(C - B)
+    b = np.linalg.norm(C - A)
+    c = np.linalg.norm(B - A)
+    s = (a + b + c) / 2
+    R = a * b * c / 4 / np.sqrt(s * (s - a) * (s - b) * (s - c))
+    b1 = a * a * (b * b + c * c - a * a)
+    b2 = b * b * (a * a + c * c - b * b)
+    b3 = c * c * (a * a + b * b - c * c)
+    P = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
+    P /= b1 + b2 + b3
+    print(P)
+
+    print("-------------------------------")
+    print("Centro = (", P.get_x(), ", ", P.get_y(), ")")
+    print("Radio = ", R)
+    print("-------------------------------")
+
+    return Circunferencia(P, R)
+
+
+# Objetivo específico 3 - Calculo de los grados de pertenencia de un punto a un conjunto de clusters.
+def grado_pertenencia2(punto, circunferencias):
+    grados_punto = []
+    for circunferencia in circunferencias:
+        a = np.array((punto.get_x(), punto.get_y()))
+        b = np.array((circunferencia.get_centro().get_x(), circunferencia.get_centro().get_y()))
+        dist_centro = abs(np.linalg.norm(a-b) - circunferencia.get_radio())
+
+        if dist_centro != 0:
+            inv_prop = (1 / dist_centro)
+            grados_punto.append(inv_prop)
+        else:
+            grados_punto.append(1)
+
+    grados_normalizados = [i / sum(grados_punto) for i in grados_punto]
+    punto.grado_pertenencia = grados_normalizados
+
+
+def actualizar_cluster2(circunferencias, puntos):
+    for index, cluster in enumerate(circunferencias, start=0):
+        n_centro = []
+        for j in puntos:
+            if j.get_grado_pertenencia()[index] > 1/len(circunferencias):
+                n_centro.append(j)
+
+        cluster.centro = Punto(sum(p.get_x() for p in n_centro)/len(n_centro), sum(p.get_y() for p in n_centro)/len(n_centro))
+
+        d_centro = []
+        for k in n_centro:
+            a = np.array((k.get_x(), k.get_y()))
+            b = np.array((cluster.get_centro().get_x(), cluster.get_centro().get_y()))
+            dist_centro = abs(np.linalg.norm(a - b))
+            d_centro.append(dist_centro)
+
+        cluster.radio = sum(d_centro)/len(d_centro)
+
+        ################################################################
+
+
+
+        print(index)
+        print(cluster.get_centro())
+        print(cluster.get_radio())
+        print("------------------")

@@ -1,9 +1,9 @@
 class Circunferencia:
 
-    def __init__(self, centro, radio, lista_puntos):
+    def __init__(self, centro, radio):
         self.centro = centro
         self.radio = radio
-        self.lista_puntos = lista_puntos
+        self.lista_puntos = []
 
     def get_centro(self):
         return self.centro
