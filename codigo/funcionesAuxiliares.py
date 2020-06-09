@@ -1,7 +1,8 @@
 import csv
 from codigo.punto import Punto
 from math import sqrt, dist
-
+import numpy as np
+import operator
 
 # Método para leer los datos de entrada, provenientes de un archivo csv.
 def leer_datos(path):
@@ -67,23 +68,68 @@ def encontrar_circulo(punto1, punto2, punto3):
 
     return [centro, radio]
 
+
 # Objetivo específico 3 - Calculo de los grados de pertenencia de un punto a un conjunto de clusters.
-def grado_pertenencia(punto1, circunferencias):
+def grado_pertenencia(punto, circunferencias):
     grados_punto = []
+    distancias_punto = []
     for circunferencia in circunferencias:
-        dist_centro = abs(dist([punto1.get_x(), punto1.get_y()], [circunferencia.get_centro().get_x(), circunferencia.get_centro().get_y()]) - circunferencia.get_radio())
-        inv_prop = (1/dist_centro)
-        grados_punto.append(inv_prop)
+        # dist_centro = abs(dist([punto.get_x(), punto.get_y()], [circunferencia.get_centro().get_x(),
+        #                                                         circunferencia.get_centro().get_y()]) - circunferencia.get_radio())
+        a = np.array((punto.get_x(), punto.get_y()))
+        b = np.array((circunferencia.get_centro().get_x(), circunferencia.get_centro().get_y()))
+        dist_centro = abs(np.linalg.norm(a-b) - circunferencia.get_radio())
 
-        print("-------------------------------")
-        print(dist_centro)
-        print(inv_prop)
-        print("-------------------------------")
+        if dist_centro != 0:
+            inv_prop = (1 / dist_centro)
+            grados_punto.append(inv_prop)
+            distancias_punto.append(dist_centro)
+        else:
+            grados_punto.append(1)
+            distancias_punto.append(0)
 
-    grados_normalizados = [i/sum(grados_punto) for i in grados_punto]
+        # print("-------------------------------")
+        # print(dist_centro)
+        # print(inv_prop)
+        # print("-------------------------------")
 
-    print("-------------------------------")
-    print(grados_punto)
-    print("-------------------------------")
-    print(grados_normalizados)
+    grados_normalizados = [i / sum(grados_punto) for i in grados_punto]
 
+    # print("-------------------------------")
+    # print(punto.__str__())
+    # print(grados_punto)
+    # print(grados_normalizados)
+    # print("-------------------------------")
+
+    punto.grado_pertenencia = grados_normalizados
+    punto.distancias = distancias_punto
+
+
+def actualizar_cluster(circunferencias, puntos):
+    for index, cluster in enumerate(circunferencias, start=0):
+        n_centro = []
+        for j in puntos:
+            if j.get_grado_pertenencia()[index] > 0.20:
+                #print(j.__str__())
+                n_centro.append(j)
+
+        cluster.centro = Punto(sum(p.get_x() for p in n_centro)/len(n_centro), sum(p.get_y() for p in n_centro)/len(n_centro))
+
+        d_centro = []
+        for k in n_centro:
+            a = np.array((k.get_x(), k.get_y()))
+            b = np.array((cluster.get_centro().get_x(), cluster.get_centro().get_y()))
+            dist_centro = abs(np.linalg.norm(a - b))
+            d_centro.append(dist_centro)
+
+        cluster.radio = sum(d_centro)/len(d_centro)
+
+        print(index)
+        print(cluster.get_centro())
+        print(cluster.get_radio())
+        print("------------------")
+
+def asignar_puntos(circunferencias, puntos):
+    for p in puntos:
+        index, value = max(enumerate(p.get_grado_pertenencia()), key=operator.itemgetter(1))
+        circunferencias[index].get_lista_puntos().append(p)
