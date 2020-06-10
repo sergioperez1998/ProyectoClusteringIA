@@ -12,14 +12,6 @@ numero_iteraciones = 10
 similitud_cluster = True
 
 # 1. Inicialización de circunferencias iniciales (centro y radio de cada una)
-# tres_puntos = random.sample(datos_entrada, 3)
-# circulo = encontrar_circulo(tres_puntos[0], tres_puntos[1], tres_puntos[2])
-# tres_puntos2 = random.sample(datos_entrada, 3)
-# circulo2 = encontrar_circulo(tres_puntos2[0], tres_puntos2[1], tres_puntos2[2])
-# tres_puntos3 = random.sample(datos_entrada, 3)
-# circulo3 = encontrar_circulo(tres_puntos3[0], tres_puntos3[1], tres_puntos3[2])
-# circunferencias = [circulo, circulo2, circulo3]
-
 inicializar_datos(datos_entrada, num_cluster, circunferencias)
 
 # 2. Repetir (hasta condición de parada)
