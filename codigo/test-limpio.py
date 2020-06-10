@@ -1,7 +1,7 @@
 from codigo.funcionesAuxiliares import *
 
 # 0. Leer datos
-datos_entrada = leer_datos('../data/entrada-profesor.csv')
+datos_entrada = leer_datos('../data/entrada-profesor2.csv')
 
 num_cluster = 3
 circunferencias = []
