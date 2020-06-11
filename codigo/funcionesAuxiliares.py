@@ -42,22 +42,22 @@ def inicializar_datos(datos_entrada, num_cluster, circunferencias):
             abajo_derecha.append(p)
 
     cuadrantes = []
-    if len(arriba_izquierda) > 0: cuadrantes.append(arriba_izquierda)
-    if len(arriba_derecha) > 0: cuadrantes.append(arriba_derecha)
-    if len(abajo_izquierda) > 0: cuadrantes.append(abajo_izquierda)
-    if len(abajo_derecha) > 0: cuadrantes.append(abajo_derecha)
+    if len(arriba_izquierda) > 3: cuadrantes.append(arriba_izquierda)
+    if len(arriba_derecha) > 3: cuadrantes.append(arriba_derecha)
+    if len(abajo_izquierda) > 3: cuadrantes.append(abajo_izquierda)
+    if len(abajo_derecha) > 3: cuadrantes.append(abajo_derecha)
+
+    cuadrantes.sort(key=len, reverse=True)
+
+    cuadrantes_elegidos = cuadrantes.copy() # abajoIzq  arribaDer
+    pesos = [[1.0],[0.80, 0.20],[0.50, 0.30, 0.20],[0.40, 0.30, 0.20, 0.10]]
+    if num_cluster > len(cuadrantes_elegidos):
+        for i in range(num_cluster-len(cuadrantes_elegidos)):
+            cuadrantes_elegidos.append(np.random.choice(cuadrantes_elegidos, 1, replace=False, p=pesos[len(cuadrantes)-1])[0])
 
     for i in range(num_cluster):
-        cuadrantes_elegidos = random.choices(cuadrantes, k=3)
-        puntos = []
-        for c in cuadrantes_elegidos:
-            pto = np.random.choice(c, 1, replace=False)[0]
-            if pto in puntos:
-                puntos.append(np.random.choice(c, 1, replace=False)[0])
-            else:
-                puntos.append(pto)
+        puntos = np.random.choice(cuadrantes_elegidos[i], 3, replace=False)
         circunferencias.append(encontrar_circulo(puntos[0], puntos[1], puntos[2]))
-
 
 # Objetivo específico 2 - Método Local: Aproximación basada en tres puntos alejados entre sí.
 # Algoritmo para la obtención de circunferencias a partir de 3 puntos dados.
@@ -137,7 +137,7 @@ def actualizar_cluster(circunferencias, puntos):
     for index, cluster in enumerate(circunferencias, start=0):
         n_centro = []
         for j in puntos:
-            if j.get_grado_pertenencia()[index] > 1 / len(circunferencias):
+            if j.get_grado_pertenencia()[index] > 1 / len(circunferencias): ######## * 1.2 ?
                 n_centro.append(j)
 
         if len(n_centro) > 0:
@@ -152,57 +152,12 @@ def actualizar_cluster(circunferencias, puntos):
             cluster.radio = sum(d_centro) / len(d_centro)
 
 
-# Objetivo específico 5 - Asignar puntos y devolver los cluster
-# Se asigna cada punto a las circunferencias que mayor grado de pertenencia tenga, obteniendo el centro de la circunferencia
-# y calculando la distancia a la misma para así poder comparar si ese punto pertenece a esa circunferencia (si está en el
-# rango de +- 25%)
-def asignar_puntos(circunferencias, puntos):
-    for p in puntos:
-        max_value = max(p.get_grado_pertenencia())
-        max_index = p.get_grado_pertenencia().index(max_value)
-        dist_centro = distancia_centro(p, circunferencias[max_index].get_centro())
-        radio = circunferencias[max_index].get_radio()
-        radio_arriba = radio * 1.25
-        radio_abajo = radio * 0.75
-        if radio_abajo < dist_centro < radio_arriba:
-            circunferencias[max_index].get_lista_puntos().append(p)
-
-# Se muestran los resultados de cada una de las circunferencias y se dibuja la gráfica.
-def mostrar_resultados(datos_entrada, circunferencias, iteraciones):
-    x = []
-    y = []
-    for i in datos_entrada:
-        x.append(i.get_x())
-        y.append(i.get_y())
-
-    plt.plot(x, y, 'o', color='black')
-
-    cFinal = []
-    for c in circunferencias:
-        if len(c.get_lista_puntos()) > 0:
-            cFinal.append(c)
-
-    print("Iteraciones: " + str(iteraciones))
-    for c in cFinal:
-        print("-----------")
-        print("Centro: " + c.centro.__str__())
-        print("Radio: " + str(c.get_radio()))
-        print("".join([p.__str__() for p in c.get_lista_puntos()]))
-        colour = np.random.rand(3, )
-        circle = plt.Circle((c.get_centro().get_x(), c.get_centro().get_y()), radius=c.get_radio(), facecolor='none',
-                            edgecolor=colour)
-        for p in c.get_lista_puntos():
-            plt.plot(p.get_x(), p.get_y(), marker='s', linestyle='-', color=colour)
-
-        plt.gcf().gca().add_artist(circle)
-
-    plt.show()
-
 # Criterio básico, se selecciona un numero fijo de iteraciones para realizar el algoritmo
 # 1. Lectura y tratamiento de datos
 # 2. Calcular grado de pertenencia de cada punto
 # 3. Actualizar los clusters
-def criterio_iteraciones(numero_iteraciones, datos_entrada, circunferencias, iteraciones):
+def criterio_iteraciones(numero_iteraciones, datos_entrada, circunferencias):
+    iteraciones = 0
     for i in range(numero_iteraciones):
         iteraciones = iteraciones + 1
 
@@ -213,12 +168,15 @@ def criterio_iteraciones(numero_iteraciones, datos_entrada, circunferencias, ite
     # 2.2. actualizar centros y radios
     actualizar_cluster(circunferencias, datos_entrada)
 
+    return iteraciones
+
 # Criterio avanzado, se realiza una copia de los datos anteriores a cada actualización para compararlos a posteriori
 # así podemos ver si los clusters se modifican despues de las actualizaciones.
 # 1. Lectura y tratamiento de datos
 # 2. Calcular grado de pertenencia de cada punto
 # 3. Actualizar los clusters
-def criterio_similitud(similitud_cluster, iteraciones, circunferencias, datos_entrada):
+def criterio_similitud(similitud_cluster, circunferencias, datos_entrada):
+    iteraciones = 0
     while similitud_cluster:
         iteraciones = iteraciones + 1
         #Creamos una copia de los datos anteriores a la actualización
@@ -249,6 +207,59 @@ def criterio_similitud(similitud_cluster, iteraciones, circunferencias, datos_en
 
         if True not in criterio:
             similitud_cluster = False
+
+    return iteraciones
+
+
+# Objetivo específico 5 - Asignar puntos y devolver los cluster
+# Se asigna cada punto a las circunferencias que mayor grado de pertenencia tenga, obteniendo el centro de la circunferencia
+# y calculando la distancia a la misma para así poder comparar si ese punto pertenece a esa circunferencia (si está en el
+# rango de +- 25%)
+def asignar_puntos(circunferencias, puntos, estadisticas):
+    puntos_asignados = 0
+    for p in puntos:
+        max_value = max(p.get_grado_pertenencia())
+        max_index = p.get_grado_pertenencia().index(max_value)
+        dist_centro = distancia_centro(p, circunferencias[max_index].get_centro())
+        radio = circunferencias[max_index].get_radio()
+        radio_arriba = radio * 1.25
+        radio_abajo = radio * 0.75
+        if radio_abajo < dist_centro < radio_arriba:
+            circunferencias[max_index].get_lista_puntos().append(p)
+            puntos_asignados = puntos_asignados + 1
+    estadisticas.append(len(puntos)-puntos_asignados)
+
+# Se muestran los resultados de cada una de las circunferencias y se dibuja la gráfica.
+def mostrar_resultados(datos_entrada, circunferencias, iteraciones):
+    x = []
+    y = []
+    for i in datos_entrada:
+        x.append(i.get_x())
+        y.append(i.get_y())
+
+    plt.plot(x, y, 'o', color='black')
+
+    # cFinal = []
+    # for c in circunferencias:
+    #     if len(c.get_lista_puntos()) > 0:
+    #         cFinal.append(c)
+
+    print("Iteraciones: " + str(iteraciones))
+    for c in circunferencias:
+        print("-----------")
+        print("Centro: " + c.centro.__str__())
+        print("Radio: " + str(c.get_radio()))
+        print("".join([p.__str__() for p in c.get_lista_puntos()]))
+        colour = np.random.rand(3, )
+        circle = plt.Circle((c.get_centro().get_x(), c.get_centro().get_y()), radius=c.get_radio(), facecolor='none',
+                            edgecolor=colour)
+        for p in c.get_lista_puntos():
+            plt.plot(p.get_x(), p.get_y(), marker='s', linestyle='-', color=colour)
+
+        plt.gcf().gca().add_artist(circle)
+
+    plt.show()
+
 
 # Método para calcular la distancia entre 2 puntos
 def distancia_centro(punto1, punto2):
