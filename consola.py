@@ -1,9 +1,7 @@
-from codigo.funcionesAuxiliares import *
-import time
-import sys
+from codigo.clustering import *
 import argparse
 
-# ...
+# Configuración de la consola
 parser = argparse.ArgumentParser(
     prog="Proyecto Clustering IA 2020",
     description="Interfaz de consola del Proyecto de Clustering IA 2020.",
@@ -59,57 +57,19 @@ parser.add_argument(
 args = parser.parse_args()
 
 iteraciones_prueba = args.np
-estadisticas = []
+datos_entrada = args.de
+tipo_input = args.i  # 0 -> manual, 1 -> automático
+num_cluster = args.nc
+criterio_parada = args.cp  # 0 -> numero_iteraciones, 1 -> similitud_cluster
+numero_iteraciones = args.ni
 
-for i in range(iteraciones_prueba):
-    # 0. Leer datos
-    datos_entrada = leer_datos(args.de)
+circunferencias_entrada = []
+if tipo_input == 0:
+    for i in range(num_cluster):
+        centro_x = float(input("Introduzca la coordenada x del centro de la circunferencia: "))
+        centro_y = float(input("Introduzca la coordenada y del centro de la circunferencia: "))
+        radio = float(input("Introduzca el radio de la circunferencia: "))
+        circunferencias_entrada.append(Circunferencia(Punto(centro_x, centro_y), radio))
 
-    tipo_input = args.i
-
-    num_cluster = args.nc
-
-    criterio_parada = args.cp  # 0 -> numero_iteraciones, 1 -> similitud_cluster
-
-    if criterio_parada == 0:
-        numero_iteraciones = args.ni
-    similitud_cluster = True
-
-    # 1. Inicialización de circunferencias iniciales (centro y radio de cada una)
-    circunferencias = []
-    if tipo_input == 0:
-        for j in range(num_cluster):
-            centro_x = float(input("Introduzca la coordenada x del centro de la circunferencia: "))
-            centro_y = float(input("Introduzca la coordenada y del centro de la circunferencia: "))
-            radio = float(input("Introduzca el radio de la circunferencia: "))
-            circunferencias.append(Circunferencia(Punto(centro_x, centro_y), radio))
-    else:
-        inicializar_datos(datos_entrada, num_cluster, circunferencias)
-    # 2. Repetir (hasta condición de parada)
-    tiempo = time.time()
-    if criterio_parada == 0:
-        iteraciones = criterio_iteraciones(numero_iteraciones, datos_entrada, circunferencias)
-    else:
-        iteraciones = criterio_similitud(similitud_cluster, circunferencias, datos_entrada)
-
-    # 3. Asignar cada punto únicamente a su cluster de mayor grado de pertenencia,
-    asignar_puntos(circunferencias, datos_entrada,estadisticas)
-
-    # 4. Mostrar salidas y gráfica
-    # mostrar_resultados(datos_entrada, circunferencias, iteraciones)
-
-valor = []
-for i in range(len(estadisticas)):
-    valor.append(estadisticas[i][0])
-minimo = min(valor)
-maximo = max(valor)
-media = sum(e for e in valor) / len(valor)
-index = valor.index(minimo)
-
-print("Número de iteraciones: ", + iteraciones_prueba)
-print("Tiempo de ejecución: %s segundos" % (time.time() - tiempo))
-print("Mínimo de puntos sin asignar: " + str(minimo))
-print("Máximo de puntos sin asignar: " + str(maximo))
-print("Media de puntos sin asignar: " + str(media))
-
-mostrar_resultados(datos_entrada, estadisticas[index][1], iteraciones)
+clustering(iteraciones_prueba, datos_entrada, tipo_input, num_cluster, criterio_parada, numero_iteraciones,
+           circunferencias_entrada)

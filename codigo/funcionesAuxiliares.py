@@ -6,8 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import time
-
-b_inf = 0
+import copy
 
 
 # Método para leer los datos de entrada, provenientes de un archivo csv.
@@ -57,7 +56,9 @@ def inicializar_datos(datos_entrada, num_cluster, circunferencias):
 
     cuadrantes.sort(key=len, reverse=True)
 
-    cuadrantes_elegidos = cuadrantes.copy()  # abajoIzq  arribaDer
+    # cuadrantes_elegidos = cuadrantes.copy()  # abajoIzq  arribaDer
+    cuadrantes_elegidos = copy.deepcopy(cuadrantes)  # abajoIzq  arribaDer
+
     num_cuadrantes = len(cuadrantes_elegidos)
     pesos = [[1.0], [0.80, 0.20], [0.50, 0.30, 0.20], [0.40, 0.30, 0.20, 0.10]]
 
@@ -189,7 +190,6 @@ def criterio_iteraciones(numero_iteraciones, datos_entrada, circunferencias):
 # 3. Actualizar los clusters
 def criterio_similitud(similitud_cluster, circunferencias, datos_entrada):
     iteraciones = 0
-    start_time = time.time()
     while similitud_cluster:
         iteraciones = iteraciones + 1
         # Creamos una copia de los datos anteriores a la actualización
@@ -197,7 +197,6 @@ def criterio_similitud(similitud_cluster, circunferencias, datos_entrada):
         for c in circunferencias:
             tuplas.append((c.get_centro(), c.get_radio()))
 
-        # print("iteraciones: " + str(iteraciones))
         for p in datos_entrada:
             # 2.1. actualizar grados de pertenencia de los puntos a las circunferencias
             grado_pertenencia(p, circunferencias)
@@ -222,13 +221,7 @@ def criterio_similitud(similitud_cluster, circunferencias, datos_entrada):
         if True not in criterio:
             similitud_cluster = False
         if iteraciones == 500:
-            global b_inf
-            b_inf = b_inf + 1
-            print("Se ha quedado pillado: " + str(b_inf) + " veces.")
-            print("--- %s seconds ---" % (time.time() - start_time))
             similitud_cluster = False
-
-        criterio = []
 
     return iteraciones
 
@@ -252,7 +245,31 @@ def asignar_puntos(circunferencias, puntos, estadisticas):
 
 
 # Se muestran los resultados de cada una de las circunferencias y se dibuja la gráfica.
-def mostrar_resultados(datos_entrada, circunferencias, iteraciones):
+def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_prueba, tiempo):
+    # Estadísticas generales de la prueba
+    valor = []
+    for i in range(len(estadisticas)):
+        valor.append(estadisticas[i][0])
+    minimo = min(valor)
+    maximo = max(valor)
+    media = sum(e for e in valor) / len(valor)
+    indice_minimo = valor.index(minimo)
+
+    print("Número de pruebas realizadas: ", + iteraciones_prueba)
+    print("Tiempo de ejecución: %s segundos" % (time.time() - tiempo))
+    print("Mínimo de puntos sin asignar: " + str(minimo))
+    print("Máximo de puntos sin asignar: " + str(maximo))
+    print("Media de puntos sin asignar: " + str(media))
+    print("")
+
+    # Mostramos solo los clusters no vacíos
+    circunferencias = estadisticas[indice_minimo][1]
+    c_final = []
+    for c in circunferencias:
+        if len(c.get_lista_puntos()) > 0:
+            c_final.append(c)
+
+    #  Datos iniciales para la gráfica
     x = []
     y = []
     for i in datos_entrada:
@@ -261,17 +278,24 @@ def mostrar_resultados(datos_entrada, circunferencias, iteraciones):
 
     plt.plot(x, y, 'o', color='black')
 
-    cFinal = []
-    for c in circunferencias:
-        if len(c.get_lista_puntos()) > 0:
-            cFinal.append(c)
+    print("Iteraciones del resultado elegido: " + str(iteraciones))
+    print("")
 
-    print("Iteraciones: " + str(iteraciones))
-    for c in cFinal:
-        print("-----------")
+    num_puntos_asignados_totales = 0
+    for index1, c in enumerate(c_final, start=1):
+        print("-- Clúster: %s --" % str(index1))
         print("Centro: " + c.centro.__str__())
         print("Radio: " + str(c.get_radio()))
-        print("".join([p.__str__() for p in c.get_lista_puntos()]))
+        print("Puntos asignados: " + str(len(c.get_lista_puntos())))
+        puntos_str = ""
+        for index2, p in enumerate(c.get_lista_puntos(), start=1):
+            if index2 % 5:
+                puntos_str = puntos_str + p.__str__()
+            else:
+                puntos_str = puntos_str + p.__str__() + "\n"
+        print(puntos_str)
+        print("")
+        num_puntos_asignados_totales = num_puntos_asignados_totales + len(c.get_lista_puntos())
         colour = np.random.rand(3, )
         circle = plt.Circle((c.get_centro().get_x(), c.get_centro().get_y()), radius=c.get_radio(), facecolor='none',
                             edgecolor=colour)
@@ -280,6 +304,7 @@ def mostrar_resultados(datos_entrada, circunferencias, iteraciones):
 
         plt.gcf().gca().add_artist(circle)
 
+    print("Puntos sin asignar: %s" % (len(datos_entrada) - num_puntos_asignados_totales))
     plt.show()
 
 
