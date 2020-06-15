@@ -19,21 +19,13 @@ def crear_circunferencia(cuadro_coordenada_x,cuadro_coordenada_y,cuadro_radio, v
     coordenada_x = cuadro_coordenada_x.get()
     coordenada_y = cuadro_coordenada_y.get()
     radio = cuadro_radio.get()
-    circunferencias_entrada.append(Circunferencia(Punto(coordenada_x,coordenada_y), radio))
-    print(circunferencias_entrada[contador])
+    circunferencias_entrada.append(Circunferencia(Punto(float(coordenada_x),float(coordenada_y)), float(radio)))
     ventana_clusters.destroy()
     contador = contador + 1
     if contador < num_clusters:
         clustering_manual()
     else:
         try:
-            print(circunferencias_entrada)
-            print(num_iteraciones_totales)
-            print(path)
-            print(input_var)
-            print(num_clusters)
-            print(criterio_de_parada)
-            print(iteraciones)
             clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones,
                        circunferencias_entrada)
         except:
@@ -45,33 +37,34 @@ def clustering_automatico():
     global input_var
     input_var = 1
     try:
-        clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones,circunferencias_entrada)
+        clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones, circunferencias_entrada)
     except:
         messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
 
 def clustering_manual():
+    global contador
     global input_var
     input_var = 0
     # Ventana para asignacion de clusters
     ventana_clusters = Toplevel()
-    ventana_clusters.title('Clusters manuales')
+    ventana_clusters.title('Introducir circunferencia inicial')
     ventana_clusters.geometry('500x300+300+300')
     # Frame para crear el formulario con las variables del algoritmo
     miFrame = Frame(ventana_clusters, width=50, height=50)
     miFrame.pack()
-    label_clusters = Label(miFrame, text="Crear clusters manualmente")
+    label_clusters = Label(miFrame, text="Datos de la circunferencia: "+str(contador+1))
     label_clusters.place(x=25, y=25, anchor="center")
     label_clusters.grid(row=0, column=0)
     label_clusters.config(font=('Verdana', 15))
 
     clusters_manual = Frame(ventana_clusters)
-    coordenada_x = Label(clusters_manual, text="Coordenada X del centro:",font=('Verdana', 9)).grid(row=0, column=0)
+    coordenada_x = Label(clusters_manual, text="Centro - Coordenada X:", font=('Verdana', 9)).grid(row=0, column=0)
     cuadro_coordenada_x = Entry(clusters_manual)
     cuadro_coordenada_x.grid(row=0, column=1)
-    coordenada_y = Label(clusters_manual, text="Coordenada Y del centro:", font=('Verdana', 9)).grid(row=1, column=0)
+    coordenada_y = Label(clusters_manual, text="Centro - Coordenada Y:", font=('Verdana', 9)).grid(row=1, column=0)
     cuadro_coordenada_y = Entry(clusters_manual)
     cuadro_coordenada_y.grid(row=1, column=1)
-    radio = Label(clusters_manual, text="Radio de la circunferencia:", font=('Verdana', 9)).grid(row=2, column=0)
+    radio = Label(clusters_manual, text="Radio:", font=('Verdana', 9)).grid(row=2, column=0)
     cuadro_radio = Entry(clusters_manual)
     cuadro_radio.grid(row=2, column=1)
     clusters_manual.pack()
@@ -109,12 +102,12 @@ def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, 
 def configuracion():
     #Ventana para la configuracion de variables
     ventana_configuracion = Toplevel()
-    ventana_configuracion.title('Configuracion de variables')
-    ventana_configuracion.geometry('500x300+300+300')
+    ventana_configuracion.title('Configuración de variables')
+    ventana_configuracion.geometry('675x400+300+300')
     #Frame para crear el formulario con las variables del algoritmo
     miFrame = Frame(ventana_configuracion, width=50,height=50)
     miFrame.pack()
-    label_configuracion = Label(miFrame, text="Configuracion de variables")
+    label_configuracion = Label(miFrame, text="Configuración de variables")
     label_configuracion.place(x=25, y=25, anchor="center")
     label_configuracion.grid(row=0, column=0)
     label_configuracion.config(font=('Verdana', 15))
@@ -129,14 +122,14 @@ def configuracion():
     variables_obligatorias.pack()
 
     #Entrada para el numero de clusters
-    label_num_clusters = Label(formulario, text="Numero de clusters: **")
+    label_num_clusters = Label(formulario, text="Número de clusters: **")
     label_num_clusters.grid(row=1, column=0)
     label_num_clusters.config(padx=10, pady=10, font=('Verdana', 9))
     cuadro_num_clusters = Entry(formulario)
     cuadro_num_clusters.grid(row=1, column=1)
 
     # Entrada para las iteraciones totales del algoritmo
-    label_num_iteraciones_algoritmo = Label(formulario, text="Numero de iteraciones totales: **")
+    label_num_iteraciones_algoritmo = Label(formulario, text="Número de iteraciones totales: **")
     label_num_iteraciones_algoritmo.grid(row=2, column=0)
     label_num_iteraciones_algoritmo.config(padx=10, pady=10, font=('Verdana', 9))
     cuadro_num_iteraciones_algoritmo = Entry(formulario)
@@ -189,8 +182,8 @@ if __name__ == "__main__":
 
     #Ventana principal
     root = tk.Tk()
-    root.title('Clustering bajo incertidumbre')
-    root.geometry('500x300+300+300')
+    root.title('Proyecto IA 2020 - Clustering Bajo Incertidumbre')
+    root.geometry('675x400+300+300')
 
     #Variables para el algoritmo
     path = ''
@@ -205,17 +198,21 @@ if __name__ == "__main__":
 
 
     #Menu de la interfaz
+    # menu = Menu(root)
+    # file = Menu(root,font=("Verdana", 9))
+    # file.add_command(label='Seleccionar archivo', command=openFile)
+    # file.add_command(label='Configuración', command=configuracion)
+    # file.add_command(label='Salir', command=root.destroy)
+    # menu.add_cascade(label='Menu', menu=file,font=("Verdana", 9))
+    # root.config(menu=menu)
     menu = Menu(root)
-    file = Menu(root,font=("Verdana", 9))
-    file.add_command(label='Seleccionar archivo', command=openFile)
-    file.add_command(label='Configuración', command=configuracion)
-    file.add_command(label='Salir', command=root.destroy)
-    menu.add_cascade(label='Menu', menu=file,font=("Verdana", 9))
+    menu.add_command(label='Seleccionar CSV', command=openFile)
+    menu.add_command(label='Configurar variables', command=configuracion)
     root.config(menu=menu)
 
     #Frame para el inicio de la interfaz
     inicio = Frame(root)
-    label_inicio = Label(inicio, text="Variables del algoritmo")
+    label_inicio = Label(inicio, text="Variables de ejecución")
     label_inicio.grid(row=0, column=0)
     label_inicio.config(font=('Verdana', 15))
     inicio.pack()
@@ -223,15 +220,15 @@ if __name__ == "__main__":
     #Listado de las variables para lanzar el algoritmo
     listbox = Listbox(root, font=("Verdana", 9), width=40, height= 8)
     listbox.pack()
-    for item in ["Archivo: ", "Numero de clusters: ", "Iteraciones totales del algoritmo: ",
-                 "Iteraciones por cluster : ", "Criterio de parada: "]:
+    for item in ["Archivo de datos CSV: ", "Número de clusters: ", "Número de pruebas a ejecutar: ",
+                 "Iteraciones : ", "Criterio de parada: "]:
         listbox.insert(END, item)
 
     #Frame para separar los botones del listado de variables
     botones = Frame(root)
-    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Algoritmo automatico", command=clustering_automatico).grid(row=0, column=0)
-    f_manual = tk.Button(botones, font=("Verdana", 10), text="Algoritmo manual", command=clustering_manual).grid(row=0, column=1)
-    actualizar = tk.Button(botones, font=("Verdana", 10),  text="Actualizar", command=partial(actualizar, listbox)).grid(row=0, column=3)
+    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Inicialización Automática", command=clustering_automatico).grid(row=0, column=0)
+    f_manual = tk.Button(botones, font=("Verdana", 10), text="Inicialización Manual", command=clustering_manual).grid(row=0, column=1)
+    actualizar = tk.Button(botones, font=("Verdana", 10),  text="Actualizar Variables", command=partial(actualizar, listbox)).grid(row=0, column=3)
     salir = Frame(root)
     cancelar = tk.Button(salir, font=("Verdana", 10), text="Salir",
                          command=root.destroy).grid(row=0, column=0)
