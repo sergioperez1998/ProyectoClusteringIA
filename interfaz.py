@@ -2,6 +2,8 @@ import tkinter as tk
 from functools import partial
 from tkinter import filedialog, Menu, Listbox, END, Frame, messagebox, Label, Entry, Radiobutton, IntVar, Toplevel
 from codigo.clustering import clustering
+from codigo.circunferencia import Circunferencia
+from codigo.punto import Punto
 
 
 def openFile():
@@ -9,6 +11,35 @@ def openFile():
     path = filedialog.askopenfilename(filetypes=(("Archivos csv", "*.csv"),("All files","*.*")))
     if '/' in path:
         messagebox.showinfo('Notificacion', 'Se ha cargado correctamente el archivo.')
+
+
+contador = 0
+def crear_circunferencia(cuadro_coordenada_x,cuadro_coordenada_y,cuadro_radio, ventana_clusters):
+    global contador
+    coordenada_x = cuadro_coordenada_x.get()
+    coordenada_y = cuadro_coordenada_y.get()
+    radio = cuadro_radio.get()
+    circunferencias_entrada.append(Circunferencia(Punto(coordenada_x,coordenada_y), radio))
+    print(circunferencias_entrada[contador])
+    ventana_clusters.destroy()
+    contador = contador + 1
+    if contador < num_clusters:
+        clustering_manual()
+    else:
+        try:
+            print(circunferencias_entrada)
+            print(num_iteraciones_totales)
+            print(path)
+            print(input_var)
+            print(num_clusters)
+            print(criterio_de_parada)
+            print(iteraciones)
+            clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones,
+                       circunferencias_entrada)
+        except:
+            messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
+
+
 
 def clustering_automatico():
     global input_var
@@ -34,13 +65,21 @@ def clustering_manual():
     label_clusters.config(font=('Verdana', 15))
 
     clusters_manual = Frame(ventana_clusters)
-    for i in range(num_clusters):
-        coordenada_x = Label(clusters_manual, text="Cluster "+ str(i)+" - "+ "Coordenada X del centro:",font=('Verdana', 9)).grid(row=i, column=0)
-        cuadro_coordenada_x = Entry(clusters_manual).grid(row=i, column=1)
-        coordenada_y = Label(clusters_manual, text="Cluster " + str(i) + " - " + "Coordenada Y del centro:",font=('Verdana', 9)).grid(row=i+1, column=0)
-        #cuadro_coordenada_y = Entry(clusters_manual).grid(row=i+1, column=1)
-
+    coordenada_x = Label(clusters_manual, text="Coordenada X del centro:",font=('Verdana', 9)).grid(row=0, column=0)
+    cuadro_coordenada_x = Entry(clusters_manual)
+    cuadro_coordenada_x.grid(row=0, column=1)
+    coordenada_y = Label(clusters_manual, text="Coordenada Y del centro:", font=('Verdana', 9)).grid(row=1, column=0)
+    cuadro_coordenada_y = Entry(clusters_manual)
+    cuadro_coordenada_y.grid(row=1, column=1)
+    radio = Label(clusters_manual, text="Radio de la circunferencia:", font=('Verdana', 9)).grid(row=2, column=0)
+    cuadro_radio = Entry(clusters_manual)
+    cuadro_radio.grid(row=2, column=1)
     clusters_manual.pack()
+
+    btn_coordenadas = Frame(ventana_clusters)
+    aceptar = tk.Button(btn_coordenadas, font=("Verdana", 11), text="Aceptar",command=partial(crear_circunferencia,
+                        cuadro_coordenada_x, cuadro_coordenada_y, cuadro_radio,ventana_clusters)).grid(row=0, column=0)
+    btn_coordenadas.pack()
 
 
 
@@ -163,6 +202,7 @@ if __name__ == "__main__":
     iteraciones = 0 # 100 iteraciones por defecto
     input_var = 1 # Modo automatico, 0 --> Modo manual
     circunferencias_entrada = []
+
 
     #Menu de la interfaz
     menu = Menu(root)
