@@ -150,10 +150,14 @@ if __name__ == "__main__":
 
     #Frame para separar los botones del listado de variables
     botones = Frame(root)
-    actualizar = tk.Button(botones, font=("Verdana", 11),  text="Actualizar", command=partial(actualizar, listbox)).grid(row=0, column=0)
-    cancelar = tk.Button(botones, font=("Verdana", 11), text="Salir",
-                         command=root.destroy).grid(row=0, column=1)
+    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Algoritmo automatico").grid(row=0, column=0)
+    f_manual = tk.Button(botones, font=("Verdana", 10), text="Algoritmo manual").grid(row=0, column=1)
+    actualizar = tk.Button(botones, font=("Verdana", 10),  text="Actualizar", command=partial(actualizar, listbox)).grid(row=0, column=3)
+    salir = Frame(root)
+    cancelar = tk.Button(salir, font=("Verdana", 10), text="Salir",
+                         command=root.destroy).grid(row=0, column=0)
     botones.pack()
+    salir.pack()
 
 
 
