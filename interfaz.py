@@ -1,13 +1,50 @@
 import tkinter as tk
 from functools import partial
 from tkinter import filedialog, Menu, Listbox, END, Frame, messagebox, Label, Entry, Radiobutton, IntVar, Toplevel
+from codigo.clustering import clustering
 
 
 def openFile():
     global path
     path = filedialog.askopenfilename(filetypes=(("Archivos csv", "*.csv"),("All files","*.*")))
     if '/' in path:
-        messagebox.showinfo('Notificacion', 'Se ha cargado correctamente el archivo')
+        messagebox.showinfo('Notificacion', 'Se ha cargado correctamente el archivo.')
+
+def clustering_automatico():
+    global input_var
+    input_var = 1
+    try:
+        clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones,circunferencias_entrada)
+    except:
+        messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
+
+def clustering_manual():
+    global input_var
+    input_var = 0
+    # Ventana para asignacion de clusters
+    ventana_clusters = Toplevel()
+    ventana_clusters.title('Clusters manuales')
+    ventana_clusters.geometry('500x300+300+300')
+    # Frame para crear el formulario con las variables del algoritmo
+    miFrame = Frame(ventana_clusters, width=50, height=50)
+    miFrame.pack()
+    label_clusters = Label(miFrame, text="Crear clusters manualmente")
+    label_clusters.place(x=25, y=25, anchor="center")
+    label_clusters.grid(row=0, column=0)
+    label_clusters.config(font=('Verdana', 15))
+
+    clusters_manual = Frame(ventana_clusters)
+    for i in range(num_clusters):
+        coordenada_x = Label(clusters_manual, text="Cluster "+ str(i)+" - "+ "Coordenada X del centro:",font=('Verdana', 9)).grid(row=i, column=0)
+        cuadro_coordenada_x = Entry(clusters_manual).grid(row=i, column=1)
+        coordenada_y = Label(clusters_manual, text="Cluster " + str(i) + " - " + "Coordenada Y del centro:",font=('Verdana', 9)).grid(row=i+1, column=0)
+        #cuadro_coordenada_y = Entry(clusters_manual).grid(row=i+1, column=1)
+
+    clusters_manual.pack()
+
+
+
+
 
 def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones):
     # Variables a modificar para el algoritmo
@@ -23,11 +60,11 @@ def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, 
         if criterio_de_parada == 0:
             iteraciones = int(cuadro_num_iteraciones.get())
             assert iteraciones > 0
-        messagebox.showinfo('Notificacion', 'Se ha modificado correctamente')
+        messagebox.showinfo('Notificacion', 'Se ha modificado correctamente.')
     except ValueError:
-        messagebox.showinfo('Alerta', 'Introduce un numero')
+        messagebox.showinfo('Alerta', 'Introduce un numero.')
     except AssertionError:
-        messagebox.showinfo('Alerta', 'Numero de iteraciones por clusters es obligatorio para el criterio de iteraciones')
+        messagebox.showinfo('Alerta', 'Numero de iteraciones por clusters es obligatorio para el criterio de iteraciones.')
 
 
 def configuracion():
@@ -124,6 +161,8 @@ if __name__ == "__main__":
     criterios= ['Criterio de iteraciones', 'Criterio de similitud']
     criterio_de_parada= 1 #Por defecto esta activado el criterio de similitud --> 0 criterio de iteraciones
     iteraciones = 0 # 100 iteraciones por defecto
+    input_var = 1 # Modo automatico, 0 --> Modo manual
+    circunferencias_entrada = []
 
     #Menu de la interfaz
     menu = Menu(root)
@@ -150,8 +189,8 @@ if __name__ == "__main__":
 
     #Frame para separar los botones del listado de variables
     botones = Frame(root)
-    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Algoritmo automatico").grid(row=0, column=0)
-    f_manual = tk.Button(botones, font=("Verdana", 10), text="Algoritmo manual").grid(row=0, column=1)
+    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Algoritmo automatico", command=clustering_automatico).grid(row=0, column=0)
+    f_manual = tk.Button(botones, font=("Verdana", 10), text="Algoritmo manual", command=clustering_manual).grid(row=0, column=1)
     actualizar = tk.Button(botones, font=("Verdana", 10),  text="Actualizar", command=partial(actualizar, listbox)).grid(row=0, column=3)
     salir = Frame(root)
     cancelar = tk.Button(salir, font=("Verdana", 10), text="Salir",
