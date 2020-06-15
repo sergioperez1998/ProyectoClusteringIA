@@ -8,9 +8,9 @@ tiempo = time.time()
 for i in range(iteraciones_prueba):
     print(i)
     # 0. Leer datos
-    datos_entrada = leer_datos('../data/entrada-profesor2.csv')
+    datos_entrada = leer_datos('../data/entrada-profesor.csv')
 
-    num_cluster = 3
+    num_cluster = 2
     circunferencias = []
 
     criterio_parada = 0  # 0 -> numero_iteraciones, 1 -> similitud_cluster
