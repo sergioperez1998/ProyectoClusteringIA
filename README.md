@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 
 ## 2. Uso
-#### 2.1 Consola
+### 2.1 Consola
 
 ```cmd
 python consola.py --help
