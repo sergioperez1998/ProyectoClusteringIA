@@ -6,9 +6,7 @@ from tkinter import ttk
 from codigo.clustering import clustering
 from codigo.circunferencia import Circunferencia
 from codigo.punto import Punto
-import matplotlib as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -23,6 +21,22 @@ def openFile():
         messagebox.showinfo('Alerta', 'No se ha cargado correctamente el archivo.')
 
 
+def grafica(datos_salida):
+    x = []
+    y = []
+    for i in datos_salida[8]:
+        x.append(i.get_x())
+        y.append(i.get_y())
+    plt.plot(x, y, 'o', color='black')
+    for c in datos_salida[5]:
+        colour = np.random.rand(3, )
+        circle = plt.Circle((c.get_centro().get_x(), c.get_centro().get_y()), radius=c.get_radio(), facecolor='none',
+                            edgecolor=colour)
+        for p in c.get_lista_puntos():
+            plt.plot(p.get_x(), p.get_y(), marker='s', linestyle='-', color=colour)
+        plt.gcf().gca().add_artist(circle)
+    plt.show()
+
 
 def mostrar_resultados(datos_salida):
     ventana_resultdos = Toplevel()
@@ -35,8 +49,6 @@ def mostrar_resultados(datos_salida):
     tab_control.add(tab1, text='Estadísticas generales')
     tab2 = tk.Frame(tab_control)
     tab_control.add(tab2, text='Clusters')
-    tab3 = tk.Frame(tab_control)
-    tab_control.add(tab3, text='Gráfica')
 
     title_frame = Frame(tab1)
     title_frame.pack()
@@ -51,13 +63,6 @@ def mostrar_resultados(datos_salida):
     label2_titulo.place(x=25, y=25, anchor="center")
     label2_titulo.grid(row=0, column=0, pady=10)
     label2_titulo.config(font=('Verdana', 15))
-
-    title3_frame = Frame(tab3)
-    title3_frame.pack()
-    label3_titulo = ttk.Label(title3_frame, text="Gráfica resultante")
-    label3_titulo.place(x=25, y=25, anchor="center")
-    label3_titulo.grid(row=0, column=0, pady=10)
-    label3_titulo.config(font=('Verdana', 15))
 
     num_pruebas_realizadas = datos_salida[0]
     tiempo_ejecucion = round(datos_salida[1], 8)
@@ -77,8 +82,11 @@ def mostrar_resultados(datos_salida):
     resultado.insert(INSERT, 'Media de puntos sin asignar: ' + str(media_ptos_sin_asignar) + '\n')
     resultado.grid(column=0, row=0)
     cancelar_frame = Frame(tab1)
+
+    grafica_plot = tk.Button(cancelar_frame, font=("Verdana", 10), text="Pintar grafica",
+                             command=partial(grafica,datos_salida)).grid(row=0, column=0, pady=10)
     cancelar = tk.Button(cancelar_frame, font=("Verdana", 10), text="Salir",
-                         command=ventana_resultdos.destroy).grid(row=0, column=0, pady=10)
+                         command=ventana_resultdos.destroy).grid(row=0, column=1, pady=10)
     cancelar_frame.pack()
 
 
@@ -107,51 +115,12 @@ def mostrar_resultados(datos_salida):
     resultado_clusters.grid(column=0, row=0)
 
     cancelar_frame2 = Frame(tab2)
+    grafica_plot = tk.Button(cancelar_frame2, font=("Verdana", 10), text="Pintar grafica",
+                             command=partial(grafica, datos_salida)).grid(row=0, column=0, pady=10)
     cancelar2 = tk.Button(cancelar_frame2, font=("Verdana", 10), text="Salir",
-                         command=ventana_resultdos.destroy).grid(row=0, column=0, pady=10)
+                         command=ventana_resultdos.destroy).grid(row=0, column=1, pady=10)
     cancelar_frame2.pack()
-
-
-    data = datos_salida[8]
-    print(data)
-    result3_frame = Frame(tab3)
-    result3_frame.pack()
-
-    x = []
-    y = []
-    for i in data:
-        x.append(i.get_x())
-        y.append(i.get_y())
-
-    plt.plot(x, y, 'o', color='black')
-
-    for c in clusters:
-        colour = np.random.rand(3, )
-        circle = plt.Circle((c.get_centro().get_x(), c.get_centro().get_y()), radius=c.get_radio(), facecolor='none',
-                            edgecolor=colour)
-        for p in c.get_lista_puntos():
-            plt.plot(p.get_x(), p.get_y(), marker='s', linestyle='-', color=colour)
-
-        plt.gcf().gca().add_artist(circle)
-
-    # fig = plt.gcf()
-    # canvas = FigureCanvasTkAgg(fig, master=result3_frame)  # A tk.DrawingArea.
-    # canvas.draw()
-    #
-    # toolbar = NavigationToolbar2Tk(canvas, result3_frame)
-    # toolbar.update()
-    # canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-
-
-
-
-    cancelar_frame3 = Frame(tab3)
-    cancelar3 = tk.Button(cancelar_frame3, font=("Verdana", 10), text="Salir",
-                          command=ventana_resultdos.destroy).grid(row=0, column=0, pady=10)
-    cancelar_frame2.pack()
-
     tab_control.pack(expand=1, fill='both')
-    print(datos_salida)
 
 
 
