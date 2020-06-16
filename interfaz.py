@@ -11,6 +11,9 @@ def openFile():
     path = filedialog.askopenfilename(filetypes=(("Archivos csv", "*.csv"),("All files","*.*")))
     if '/' in path:
         messagebox.showinfo('Notificacion', 'Se ha cargado correctamente el archivo.')
+    ruta = 'Datos de entrada: ' + path.split('/')[-1]
+    listbox.delete(1)
+    listbox.insert(1, ruta)
 
 
 contador = 0
@@ -26,7 +29,7 @@ def crear_circunferencia(cuadro_coordenada_x,cuadro_coordenada_y,cuadro_radio, v
         clustering_manual()
     else:
         try:
-            clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones,
+            datos_salida = clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones,
                        circunferencias_entrada)
         except:
             messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
@@ -37,7 +40,7 @@ def clustering_automatico():
     global input_var
     input_var = 1
     try:
-        clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones, circunferencias_entrada)
+        datos_salida = clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones, circunferencias_entrada)
     except:
         messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
 
@@ -92,6 +95,7 @@ def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, 
         if criterio_de_parada == 0:
             iteraciones = int(cuadro_num_iteraciones.get())
             assert iteraciones > 0
+        actualizar(listbox)
         messagebox.showinfo('Notificacion', 'Se ha modificado correctamente.')
     except ValueError:
         messagebox.showinfo('Alerta', 'Introduce un numero.')
@@ -103,7 +107,7 @@ def configuracion():
     #Ventana para la configuracion de variables
     ventana_configuracion = Toplevel()
     ventana_configuracion.title('Configuración de variables')
-    ventana_configuracion.geometry('675x400+300+300')
+    ventana_configuracion.geometry('650x300+300+300')
     #Frame para crear el formulario con las variables del algoritmo
     miFrame = Frame(ventana_configuracion, width=50,height=50)
     miFrame.pack()
@@ -129,14 +133,14 @@ def configuracion():
     cuadro_num_clusters.grid(row=1, column=1)
 
     # Entrada para las iteraciones totales del algoritmo
-    label_num_iteraciones_algoritmo = Label(formulario, text="Número de iteraciones totales: **")
+    label_num_iteraciones_algoritmo = Label(formulario, text="Número de pruebas a realizar: **")
     label_num_iteraciones_algoritmo.grid(row=2, column=0)
     label_num_iteraciones_algoritmo.config(padx=10, pady=10, font=('Verdana', 9))
     cuadro_num_iteraciones_algoritmo = Entry(formulario)
     cuadro_num_iteraciones_algoritmo.grid(row=2, column=1)
 
     # Entrada para las iteraciones
-    label_num_iteraciones = Label(formulario, text="Iteraciones por cluster: ")
+    label_num_iteraciones = Label(formulario, text="Número de iteraciones: ")
     label_num_iteraciones.grid(row=3, column=0)
     label_num_iteraciones.config(padx=10, pady=10, font=('Verdana', 9))
     cuadro_num_iteraciones = Entry(formulario)
@@ -159,22 +163,21 @@ def configuracion():
     configuracion_botones.pack()
 
 def actualizar(listbox):
-
-    ruta = 'Archivo: '+ path.split('/')[-1]
+    iteraciones_totales = "Número de pruebas a realizar: " + str(num_iteraciones_totales)
     listbox.delete(0)
-    listbox.insert(0, ruta)
-    clusters = "Numero de clusters: "+ str(num_clusters)
+    listbox.insert(0, iteraciones_totales)
+    ruta = 'Datos de entrada: '+ path.split('/')[-1]
     listbox.delete(1)
-    listbox.insert(1, clusters)
-    iteraciones_totales = "Iteraciones totales del algoritmo: "+ str(num_iteraciones_totales)
+    listbox.insert(1, ruta)
+    clusters = "Número de clusters: " + str(num_clusters)
     listbox.delete(2)
-    listbox.insert(2, iteraciones_totales)
-    iteraciones_criterio_i = "Iteraciones por cluster : " + str(iteraciones)
-    listbox.delete(3)
-    listbox.insert(3, iteraciones_criterio_i)
+    listbox.insert(2, clusters)
     criterio_parada = "Criterio de parada: "+ criterios[int(criterio_de_parada)]
+    listbox.delete(3)
+    listbox.insert(3, criterio_parada)
+    iteraciones_criterio_i = "Número de iteraciones: " + str(iteraciones)
     listbox.delete(4)
-    listbox.insert(4, criterio_parada)
+    listbox.insert(4, iteraciones_criterio_i)
 
 
 
@@ -183,7 +186,7 @@ if __name__ == "__main__":
     #Ventana principal
     root = tk.Tk()
     root.title('Proyecto IA 2020 - Clustering Bajo Incertidumbre')
-    root.geometry('675x400+300+300')
+    root.geometry('650x300+300+300')
 
     #Variables para el algoritmo
     path = ''
@@ -213,25 +216,26 @@ if __name__ == "__main__":
     #Frame para el inicio de la interfaz
     inicio = Frame(root)
     label_inicio = Label(inicio, text="Variables de ejecución")
-    label_inicio.grid(row=0, column=0)
+    label_inicio.grid(row=0, column=0, pady=10)
     label_inicio.config(font=('Verdana', 15))
     inicio.pack()
 
     #Listado de las variables para lanzar el algoritmo
-    listbox = Listbox(root, font=("Verdana", 9), width=40, height= 8)
+    global listbox
+    listbox = Listbox(root, font=("Verdana", 9), width=40, height=5)
     listbox.pack()
-    for item in ["Archivo de datos CSV: ", "Número de clusters: ", "Número de pruebas a ejecutar: ",
-                 "Iteraciones : ", "Criterio de parada: "]:
+    for item in ["Número de pruebas a realizar: ", "Datos de entrada: ", "Número de clusters: ",
+                 "Criterio de parada: ", "Número de iteraciones: "]:
         listbox.insert(END, item)
 
     #Frame para separar los botones del listado de variables
     botones = Frame(root)
-    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Inicialización Automática", command=clustering_automatico).grid(row=0, column=0)
-    f_manual = tk.Button(botones, font=("Verdana", 10), text="Inicialización Manual", command=clustering_manual).grid(row=0, column=1)
-    actualizar = tk.Button(botones, font=("Verdana", 10),  text="Actualizar Variables", command=partial(actualizar, listbox)).grid(row=0, column=3)
+    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Inicialización Automática", command=clustering_automatico).grid(row=0, column=0, pady=10)
+    f_manual = tk.Button(botones, font=("Verdana", 10), text="Inicialización Manual", command=clustering_manual).grid(row=0, column=1, pady=10, padx=10)
+    # actualizar = tk.Button(botones, font=("Verdana", 10),  text="Actualizar Variables", command=partial(actualizar, listbox)).grid(row=0, column=3, pady=10)
     salir = Frame(root)
     cancelar = tk.Button(salir, font=("Verdana", 10), text="Salir",
-                         command=root.destroy).grid(row=0, column=0)
+                         command=root.destroy).grid(row=0, column=0, pady=10)
     botones.pack()
     salir.pack()
 
