@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import random
 import time
 import copy
+import inspect
 
 
 # Método para leer los datos de entrada, provenientes de un archivo csv.
@@ -321,7 +322,10 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
 
     resultados_interfaz.append(puntos_sin_asignar)
     resultados_interfaz.append(datos_entrada)
-    #plt.show()
+
+    frame_info = inspect.stack().__str__()
+    if frame_info.__contains__("consola.py"):
+        plt.show()
 
     return resultados_interfaz
 
