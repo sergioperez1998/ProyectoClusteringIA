@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import random
 import time
 import copy
+import inspect
 
 
 # Método para leer los datos de entrada, provenientes de un archivo csv.
@@ -246,6 +247,7 @@ def asignar_puntos(circunferencias, puntos, estadisticas):
 
 # Se muestran los resultados de cada una de las circunferencias y se dibuja la gráfica.
 def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_prueba, tiempo):
+    resultados_interfaz = []
     # Estadísticas generales de la prueba
     valor = []
     for i in range(len(estadisticas)):
@@ -254,13 +256,20 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
     maximo = max(valor)
     media = sum(e for e in valor) / len(valor)
     indice_minimo = valor.index(minimo)
+    tiempo_total = (time.time() - tiempo)
 
     print("Número de pruebas realizadas: ", + iteraciones_prueba)
-    print("Tiempo de ejecución: %s segundos" % (time.time() - tiempo))
+    print("Tiempo de ejecución: %s segundos" % tiempo_total)
     print("Mínimo de puntos sin asignar: " + str(minimo))
     print("Máximo de puntos sin asignar: " + str(maximo))
     print("Media de puntos sin asignar: " + str(media))
     print("")
+
+    resultados_interfaz.append(iteraciones_prueba)
+    resultados_interfaz.append(tiempo_total)
+    resultados_interfaz.append(minimo)
+    resultados_interfaz.append(maximo)
+    resultados_interfaz.append(media)
 
     # Mostramos solo los clusters no vacíos
     circunferencias = estadisticas[indice_minimo][1]
@@ -268,6 +277,8 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
     for c in circunferencias:
         if len(c.get_lista_puntos()) > 0:
             c_final.append(c)
+
+    resultados_interfaz.append(c_final)
 
     #  Datos iniciales para la gráfica
     x = []
@@ -280,6 +291,8 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
 
     print("Iteraciones del resultado elegido: " + str(iteraciones))
     print("")
+
+    resultados_interfaz.append(iteraciones)
 
     num_puntos_asignados_totales = 0
     for index1, c in enumerate(c_final, start=1):
@@ -304,8 +317,17 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
 
         plt.gcf().gca().add_artist(circle)
 
-    print("Puntos sin asignar: %s" % (len(datos_entrada) - num_puntos_asignados_totales))
-    plt.show()
+    puntos_sin_asignar = len(datos_entrada) - num_puntos_asignados_totales
+    print("Puntos sin asignar: %s" % puntos_sin_asignar)
+
+    resultados_interfaz.append(puntos_sin_asignar)
+    resultados_interfaz.append(datos_entrada)
+
+    frame_info = inspect.stack().__str__()
+    if frame_info.__contains__("consola.py"):
+        plt.show()
+
+    return resultados_interfaz
 
 
 # Método para calcular la distancia entre 2 puntos
@@ -317,3 +339,4 @@ def distancia_centro(punto1, punto2, centro=False, radio=0):
     else:
         dist_centro = abs(np.linalg.norm(a - b) - radio)
     return dist_centro
+
