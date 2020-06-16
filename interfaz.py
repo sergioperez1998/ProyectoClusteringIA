@@ -20,6 +20,9 @@ def openFile():
     except:
         messagebox.showinfo('Alerta', 'No se ha cargado correctamente el archivo.')
 
+def reset_contador():
+    global contador
+    contador = 0
 
 def grafica(datos_salida):
     x = []
@@ -41,7 +44,7 @@ def grafica(datos_salida):
 def mostrar_resultados(datos_salida):
     ventana_resultdos = Toplevel()
     ventana_resultdos.title('Resultados del algoritmo')
-    ventana_resultdos.geometry('700x350+300+300')
+    ventana_resultdos.geometry('700x400+300+300')
 
     tab_control = ttk.Notebook(ventana_resultdos)
 
@@ -83,16 +86,16 @@ def mostrar_resultados(datos_salida):
     resultado.grid(column=0, row=0)
     cancelar_frame = Frame(tab1)
 
-    grafica_plot = tk.Button(cancelar_frame, font=("Verdana", 10), text="Pintar grafica",
-                             command=partial(grafica,datos_salida)).grid(row=0, column=0, pady=10)
+    grafica_plot = tk.Button(cancelar_frame, font=("Verdana", 10), text="Mostrar gráfica",
+                             command=partial(grafica,datos_salida)).grid(row=0, column=0, padx=10, pady=10)
     cancelar = tk.Button(cancelar_frame, font=("Verdana", 10), text="Salir",
-                         command=ventana_resultdos.destroy).grid(row=0, column=1, pady=10)
+                         command=ventana_resultdos.destroy).grid(row=0, column=1, padx=10, pady=10)
     cancelar_frame.pack()
 
 
     result2_frame = Frame(tab2)
     result2_frame.pack()
-    resultado_clusters = scrolledtext.ScrolledText(result2_frame, width=40, height=12)
+    resultado_clusters = scrolledtext.ScrolledText(result2_frame, width=45, height=12)
     clusters = datos_salida[5]
     contador_puntos = 1
     resultado_clusters.insert(INSERT, 'Iteraciones del resultado elegido: ' + str(iteraciones_resultado) + '\n')
@@ -115,10 +118,10 @@ def mostrar_resultados(datos_salida):
     resultado_clusters.grid(column=0, row=0)
 
     cancelar_frame2 = Frame(tab2)
-    grafica_plot = tk.Button(cancelar_frame2, font=("Verdana", 10), text="Pintar grafica",
-                             command=partial(grafica, datos_salida)).grid(row=0, column=0, pady=10)
+    grafica_plot = tk.Button(cancelar_frame2, font=("Verdana", 10), text="Mostrar gráfica",
+                             command=partial(grafica, datos_salida)).grid(row=0, column=0, padx=10, pady=10)
     cancelar2 = tk.Button(cancelar_frame2, font=("Verdana", 10), text="Salir",
-                         command=ventana_resultdos.destroy).grid(row=0, column=1, pady=10)
+                         command=ventana_resultdos.destroy).grid(row=0, column=1, padx=10, pady=10)
     cancelar_frame2.pack()
     tab_control.pack(expand=1, fill='both')
 
@@ -142,7 +145,7 @@ def crear_circunferencia(cuadro_coordenada_x,cuadro_coordenada_y,cuadro_radio, v
                        circunferencias_entrada)
             mostrar_resultados(datos_salida)
         except:
-            messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
+            messagebox.showinfo('Alerta', 'Introduzca las variables necesarias para realizar el algoritmo.')
 
 def clustering_automatico():
     global input_var
@@ -151,7 +154,7 @@ def clustering_automatico():
         datos_salida = clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones, circunferencias_entrada)
         mostrar_resultados(datos_salida)
     except:
-        messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
+        messagebox.showinfo('Alerta', 'Introduzca las variables necesarias para realizar el algoritmo.')
 
 def clustering_manual():
     global contador
@@ -159,8 +162,8 @@ def clustering_manual():
     input_var = 0
     if '/' in path and num_clusters != 0 and num_iteraciones_totales > 0 and iteraciones >= 0:
         ventana_clusters = Toplevel()
-        ventana_clusters.title('Introducir circunferencia inicial')
-        ventana_clusters.geometry('500x300+300+300')
+        ventana_clusters.title('Circunferencias iniciales')
+        ventana_clusters.geometry('500x250+300+300')
         miFrame = Frame(ventana_clusters, width=50, height=50)
         miFrame.pack()
         label_clusters = Label(miFrame, text="Datos de la circunferencia: "+str(contador+1))
@@ -169,23 +172,23 @@ def clustering_manual():
         label_clusters.config(font=('Verdana', 15))
 
         clusters_manual = Frame(ventana_clusters)
-        coordenada_x = Label(clusters_manual, text="Centro - Coordenada X:", font=('Verdana', 9)).grid(row=0, column=0)
+        coordenada_x = Label(clusters_manual, text="Centro - Coordenada X:", font=('Verdana', 9)).grid(row=0, column=0, pady=10)
         cuadro_coordenada_x = Entry(clusters_manual)
         cuadro_coordenada_x.grid(row=0, column=1)
-        coordenada_y = Label(clusters_manual, text="Centro - Coordenada Y:", font=('Verdana', 9)).grid(row=1, column=0)
+        coordenada_y = Label(clusters_manual, text="Centro - Coordenada Y:", font=('Verdana', 9)).grid(row=1, column=0, pady=10)
         cuadro_coordenada_y = Entry(clusters_manual)
         cuadro_coordenada_y.grid(row=1, column=1)
-        radio = Label(clusters_manual, text="Radio:", font=('Verdana', 9)).grid(row=2, column=0)
+        radio = Label(clusters_manual, text="Radio:", font=('Verdana', 9)).grid(row=2, column=0, pady=10)
         cuadro_radio = Entry(clusters_manual)
         cuadro_radio.grid(row=2, column=1)
         clusters_manual.pack()
 
         btn_coordenadas = Frame(ventana_clusters)
         aceptar = tk.Button(btn_coordenadas, font=("Verdana", 11), text="Aceptar",command=partial(crear_circunferencia,
-                            cuadro_coordenada_x, cuadro_coordenada_y, cuadro_radio,ventana_clusters)).grid(row=0, column=0)
+                            cuadro_coordenada_x, cuadro_coordenada_y, cuadro_radio,ventana_clusters)).grid(row=0, column=0, pady=10)
         btn_coordenadas.pack()
     else:
-        messagebox.showinfo('Alerta', 'Introduzca las variables para realizar el algoritmo.')
+        messagebox.showinfo('Alerta', 'Introduzca las variables necesarias para realizar el algoritmo.')
 
 
 def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones, ventana_configuracion):
@@ -204,9 +207,9 @@ def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, 
         actualizar(listbox)
         ventana_configuracion.destroy()
     except ValueError:
-        messagebox.showinfo('Alerta', 'Introduce un numero.')
+        messagebox.showinfo('Alerta', 'Solo se admiten números enteros.')
     except AssertionError:
-        messagebox.showinfo('Alerta', 'Numero de iteraciones por clusters es obligatorio para el criterio de iteraciones.')
+        messagebox.showinfo('Alerta', 'Es necesario especificar el número de iteraciones para el criterio de parada por iteraciones.')
 
 
 def configuracion():
@@ -256,8 +259,8 @@ def configuracion():
     configuracion_botones = Frame(ventana_configuracion)
     aceptar = tk.Button(configuracion_botones, font=("Verdana", 11), text="Aceptar",
                                  command=partial(actualizar_variables, cuadro_num_clusters,
-                                 cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones, ventana_configuracion)).grid(row=0, column=0)
-    cancelar = tk.Button(configuracion_botones, font=("Verdana", 11), text="Cancelar", command=ventana_configuracion.destroy).grid(row=0, column=1)
+                                 cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones, ventana_configuracion)).grid(row=0, column=0, padx=10, pady=10)
+    cancelar = tk.Button(configuracion_botones, font=("Verdana", 11), text="Cancelar", command=ventana_configuracion.destroy).grid(row=0, column=1, pady=10)
     configuracion_botones.pack()
 
 
@@ -314,13 +317,12 @@ if __name__ == "__main__":
         listbox.insert(END, item)
 
     botones = Frame(root)
-    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Inicialización Automática", command=clustering_automatico).grid(row=0, column=0, pady=10)
-    f_manual = tk.Button(botones, font=("Verdana", 10), text="Inicialización Manual", command=clustering_manual).grid(row=0, column=1, pady=10, padx=10)
+    f_automatica = tk.Button(botones, font=("Verdana", 10), text="Inicialización Automática", command=clustering_automatico).grid(row=0, column=0, pady=10, padx=10)
+    f_manual = tk.Button(botones, font=("Verdana", 10), text="Inicialización Manual", command=lambda:[reset_contador(), clustering_manual()]).grid(row=0, column=1, pady=10)
     salir = Frame(root)
     cancelar = tk.Button(salir, font=("Verdana", 10), text="Salir",
-                         command=root.destroy).grid(row=0, column=0, pady=10)
+                         command=root.destroy).grid(row=0, column=0, padx=10)
     botones.pack()
     salir.pack()
-
 
 root.mainloop()
