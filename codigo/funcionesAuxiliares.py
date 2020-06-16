@@ -320,8 +320,8 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
     print("Puntos sin asignar: %s" % puntos_sin_asignar)
 
     resultados_interfaz.append(puntos_sin_asignar)
-
-    plt.show()
+    resultados_interfaz.append(datos_entrada)
+    #plt.show()
 
     return resultados_interfaz
 
