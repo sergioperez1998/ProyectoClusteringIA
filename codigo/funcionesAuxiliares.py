@@ -323,8 +323,6 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
 
     plt.show()
 
-    print(resultados_interfaz)
-
     return resultados_interfaz
 
 

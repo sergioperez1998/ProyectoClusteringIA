@@ -1,6 +1,8 @@
 import tkinter as tk
 from functools import partial
-from tkinter import filedialog, Menu, Listbox, END, Frame, messagebox, Label, Entry, Radiobutton, IntVar, Toplevel
+from tkinter import filedialog, Menu, Listbox, END, Frame, messagebox, Label, Entry, Radiobutton,\
+    IntVar, Toplevel, scrolledtext, INSERT
+from tkinter import ttk
 from codigo.clustering import clustering
 from codigo.circunferencia import Circunferencia
 from codigo.punto import Punto
@@ -14,6 +16,56 @@ def openFile():
     ruta = 'Datos de entrada: ' + path.split('/')[-1]
     listbox.delete(1)
     listbox.insert(1, ruta)
+
+
+def mostrar_resultados(datos_salida):
+    # Ventana para mostrar el resultado del algoritmo
+    ventana_resultdos = Toplevel()
+    ventana_resultdos.title('Resultados del algoritmo')
+    ventana_resultdos.geometry('650x300+300+300')
+
+    # Tratamiento de los resultados
+    num_pruebas_realizadas = datos_salida[0]
+    tiempo_ejecucion = round(datos_salida[1], 8)
+    min_ptos_sin_asignar = datos_salida[2]
+    max_ptos_sin_asignar = datos_salida[3]
+    media_ptos_sin_asignar = datos_salida[4]
+
+    tab_control = ttk.Notebook(ventana_resultdos)
+
+    tab1 = tk.Frame(tab_control)
+    tab_control.add(tab1, text='Estadísticas generales')
+    tab2 = tk.Frame(tab_control)
+    tab_control.add(tab2, text='Clusters')
+
+    title_frame = Frame(tab1)
+    title_frame.pack()
+    label_titulo = ttk.Label(title_frame, text="Resultados generales")
+    label_titulo.place(x=25, y=25, anchor="center")
+    label_titulo.grid(row=0, column=0, pady=10)
+    label_titulo.config(font=('Verdana', 15))
+
+    title2_frame = Frame(tab2)
+    title2_frame.pack()
+    label2_titulo = ttk.Label(title2_frame, text="Datos de los clusters")
+    label2_titulo.place(x=25, y=25, anchor="center")
+    label2_titulo.grid(row=0, column=0, pady=10)
+    label2_titulo.config(font=('Verdana', 15))
+
+    result_frame = Frame(tab1)
+    result_frame.pack()
+    resultado = scrolledtext.ScrolledText(result_frame, width=40, height=6)
+    resultado.insert(INSERT, 'Número de pruebas realizas: ' + str(num_pruebas_realizadas) + '\n')
+    resultado.insert(INSERT, 'Tiempo de ejecución: ' + str(tiempo_ejecucion) + " segundos" + '\n')
+    resultado.insert(INSERT, 'Mínimo de puntos sin asignar: ' + str(min_ptos_sin_asignar) + '\n')
+    resultado.insert(INSERT, 'Máximo de puntos sin asignar: ' + str(max_ptos_sin_asignar) + '\n')
+    resultado.insert(INSERT, 'Media de puntos sin asignar: ' + str(media_ptos_sin_asignar) + '\n')
+    resultado.grid(column=1, row=0)
+
+    tab_control.pack(expand=1, fill='both')
+    print(datos_salida)
+
+
 
 
 contador = 0
@@ -31,16 +83,16 @@ def crear_circunferencia(cuadro_coordenada_x,cuadro_coordenada_y,cuadro_radio, v
         try:
             datos_salida = clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones,
                        circunferencias_entrada)
+            mostrar_resultados(datos_salida)
         except:
             messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
-
-
 
 def clustering_automatico():
     global input_var
     input_var = 1
     try:
         datos_salida = clustering(num_iteraciones_totales, path, input_var, num_clusters, criterio_de_parada, iteraciones, circunferencias_entrada)
+        mostrar_resultados(datos_salida)
     except:
         messagebox.showinfo('Alerta', 'Configure correctamente las variables para realizar el algoritmo.')
 
@@ -48,37 +100,37 @@ def clustering_manual():
     global contador
     global input_var
     input_var = 0
-    # Ventana para asignacion de clusters
-    ventana_clusters = Toplevel()
-    ventana_clusters.title('Introducir circunferencia inicial')
-    ventana_clusters.geometry('500x300+300+300')
-    # Frame para crear el formulario con las variables del algoritmo
-    miFrame = Frame(ventana_clusters, width=50, height=50)
-    miFrame.pack()
-    label_clusters = Label(miFrame, text="Datos de la circunferencia: "+str(contador+1))
-    label_clusters.place(x=25, y=25, anchor="center")
-    label_clusters.grid(row=0, column=0)
-    label_clusters.config(font=('Verdana', 15))
+    if '/' in path and num_clusters != 0 and num_iteraciones_totales > 0 and iteraciones >= 0:
+        # Ventana para asignacion de clusters
+        ventana_clusters = Toplevel()
+        ventana_clusters.title('Introducir circunferencia inicial')
+        ventana_clusters.geometry('500x300+300+300')
+        # Frame para crear el formulario con las variables del algoritmo
+        miFrame = Frame(ventana_clusters, width=50, height=50)
+        miFrame.pack()
+        label_clusters = Label(miFrame, text="Datos de la circunferencia: "+str(contador+1))
+        label_clusters.place(x=25, y=25, anchor="center")
+        label_clusters.grid(row=0, column=0)
+        label_clusters.config(font=('Verdana', 15))
 
-    clusters_manual = Frame(ventana_clusters)
-    coordenada_x = Label(clusters_manual, text="Centro - Coordenada X:", font=('Verdana', 9)).grid(row=0, column=0)
-    cuadro_coordenada_x = Entry(clusters_manual)
-    cuadro_coordenada_x.grid(row=0, column=1)
-    coordenada_y = Label(clusters_manual, text="Centro - Coordenada Y:", font=('Verdana', 9)).grid(row=1, column=0)
-    cuadro_coordenada_y = Entry(clusters_manual)
-    cuadro_coordenada_y.grid(row=1, column=1)
-    radio = Label(clusters_manual, text="Radio:", font=('Verdana', 9)).grid(row=2, column=0)
-    cuadro_radio = Entry(clusters_manual)
-    cuadro_radio.grid(row=2, column=1)
-    clusters_manual.pack()
+        clusters_manual = Frame(ventana_clusters)
+        coordenada_x = Label(clusters_manual, text="Centro - Coordenada X:", font=('Verdana', 9)).grid(row=0, column=0)
+        cuadro_coordenada_x = Entry(clusters_manual)
+        cuadro_coordenada_x.grid(row=0, column=1)
+        coordenada_y = Label(clusters_manual, text="Centro - Coordenada Y:", font=('Verdana', 9)).grid(row=1, column=0)
+        cuadro_coordenada_y = Entry(clusters_manual)
+        cuadro_coordenada_y.grid(row=1, column=1)
+        radio = Label(clusters_manual, text="Radio:", font=('Verdana', 9)).grid(row=2, column=0)
+        cuadro_radio = Entry(clusters_manual)
+        cuadro_radio.grid(row=2, column=1)
+        clusters_manual.pack()
 
-    btn_coordenadas = Frame(ventana_clusters)
-    aceptar = tk.Button(btn_coordenadas, font=("Verdana", 11), text="Aceptar",command=partial(crear_circunferencia,
-                        cuadro_coordenada_x, cuadro_coordenada_y, cuadro_radio,ventana_clusters)).grid(row=0, column=0)
-    btn_coordenadas.pack()
-
-
-
+        btn_coordenadas = Frame(ventana_clusters)
+        aceptar = tk.Button(btn_coordenadas, font=("Verdana", 11), text="Aceptar",command=partial(crear_circunferencia,
+                            cuadro_coordenada_x, cuadro_coordenada_y, cuadro_radio,ventana_clusters)).grid(row=0, column=0)
+        btn_coordenadas.pack()
+    else:
+        messagebox.showinfo('Alerta', 'Introduzca las variables para realizar el algoritmo.')
 
 
 def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones):
@@ -162,6 +214,7 @@ def configuracion():
     cancelar = tk.Button(configuracion_botones, font=("Verdana", 11), text="Cancelar", command=ventana_configuracion.destroy).grid(row=0, column=1)
     configuracion_botones.pack()
 
+
 def actualizar(listbox):
     iteraciones_totales = "Número de pruebas a realizar: " + str(num_iteraciones_totales)
     listbox.delete(0)
@@ -178,7 +231,6 @@ def actualizar(listbox):
     iteraciones_criterio_i = "Número de iteraciones: " + str(iteraciones)
     listbox.delete(4)
     listbox.insert(4, iteraciones_criterio_i)
-
 
 
 if __name__ == "__main__":
@@ -238,7 +290,6 @@ if __name__ == "__main__":
                          command=root.destroy).grid(row=0, column=0, pady=10)
     botones.pack()
     salir.pack()
-
 
 
 root.mainloop()

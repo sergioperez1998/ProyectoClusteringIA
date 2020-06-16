@@ -28,4 +28,5 @@ def clustering(iteraciones_prueba, datos_entrada, tipo_input, num_cluster, crite
         # 3. Asignar cada punto únicamente a su cluster de mayor grado de pertenencia,
         asignar_puntos(circunferencias, datos, estadisticas)
 
-    mostrar_resultados(datos, estadisticas, iteraciones, iteraciones_prueba, tiempo)
+    datos_salida = mostrar_resultados(datos, estadisticas, iteraciones, iteraciones_prueba, tiempo)
+    return datos_salida
