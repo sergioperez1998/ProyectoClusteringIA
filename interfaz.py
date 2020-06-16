@@ -10,26 +10,20 @@ from codigo.punto import Punto
 
 def openFile():
     global path
-    path = filedialog.askopenfilename(filetypes=(("Archivos csv", "*.csv"),("All files","*.*")))
-    if '/' in path:
-        messagebox.showinfo('Notificacion', 'Se ha cargado correctamente el archivo.')
-    ruta = 'Datos de entrada: ' + path.split('/')[-1]
-    listbox.delete(1)
-    listbox.insert(1, ruta)
+    try:
+        path = filedialog.askopenfilename(filetypes=(("Archivos csv", "*.csv"), ("All files", "*.*")))
+        ruta = 'Datos de entrada: ' + path.split('/')[-1]
+        listbox.delete(1)
+        listbox.insert(1, ruta)
+    except:
+        messagebox.showinfo('Alerta', 'No se ha cargado correctamente el archivo.')
+
 
 
 def mostrar_resultados(datos_salida):
-    # Ventana para mostrar el resultado del algoritmo
     ventana_resultdos = Toplevel()
     ventana_resultdos.title('Resultados del algoritmo')
-    ventana_resultdos.geometry('650x300+300+300')
-
-    # Tratamiento de los resultados
-    num_pruebas_realizadas = datos_salida[0]
-    tiempo_ejecucion = round(datos_salida[1], 8)
-    min_ptos_sin_asignar = datos_salida[2]
-    max_ptos_sin_asignar = datos_salida[3]
-    media_ptos_sin_asignar = datos_salida[4]
+    ventana_resultdos.geometry('700x350+300+300')
 
     tab_control = ttk.Notebook(ventana_resultdos)
 
@@ -52,6 +46,14 @@ def mostrar_resultados(datos_salida):
     label2_titulo.grid(row=0, column=0, pady=10)
     label2_titulo.config(font=('Verdana', 15))
 
+    num_pruebas_realizadas = datos_salida[0]
+    tiempo_ejecucion = round(datos_salida[1], 8)
+    min_ptos_sin_asignar = datos_salida[2]
+    max_ptos_sin_asignar = datos_salida[3]
+    media_ptos_sin_asignar = datos_salida[4]
+    iteraciones_resultado= datos_salida[6]
+    puntos_sin_asignar = datos_salida[7]
+
     result_frame = Frame(tab1)
     result_frame.pack()
     resultado = scrolledtext.ScrolledText(result_frame, width=40, height=6)
@@ -60,7 +62,41 @@ def mostrar_resultados(datos_salida):
     resultado.insert(INSERT, 'Mínimo de puntos sin asignar: ' + str(min_ptos_sin_asignar) + '\n')
     resultado.insert(INSERT, 'Máximo de puntos sin asignar: ' + str(max_ptos_sin_asignar) + '\n')
     resultado.insert(INSERT, 'Media de puntos sin asignar: ' + str(media_ptos_sin_asignar) + '\n')
-    resultado.grid(column=1, row=0)
+    resultado.grid(column=0, row=0)
+    cancelar_frame = Frame(tab1)
+    cancelar = tk.Button(cancelar_frame, font=("Verdana", 10), text="Salir",
+                         command=ventana_resultdos.destroy).grid(row=0, column=0, pady=10)
+    cancelar_frame.pack()
+
+
+    result2_frame = Frame(tab2)
+    result2_frame.pack()
+    resultado_clusters = scrolledtext.ScrolledText(result2_frame, width=40, height=12)
+    clusters = datos_salida[5]
+    contador_puntos = 1
+    resultado_clusters.insert(INSERT, 'Iteraciones del resultado elegido: ' + str(iteraciones_resultado) + '\n')
+    resultado_clusters.insert(INSERT, 'Puntos sin asignar: ' + str(puntos_sin_asignar) + '\n'+'\n')
+
+    for index, n in enumerate(clusters, start= 0):
+        resultado_clusters.insert(INSERT, '----------------Cluster '+str(index+1)+"---------------"+ '\n')
+        resultado_clusters.insert(INSERT, 'Centro: ' + str(n.get_centro()) + '\n')
+        resultado_clusters.insert(INSERT, 'Radio: ' + str(n.get_radio()) + '\n')
+        puntos_asignados_cluster = n.get_lista_puntos()
+        resultado_clusters.insert(INSERT, 'Puntos asignados: ' + str(len(puntos_asignados_cluster)) + '\n')
+        cadena_puntos = ''
+        for index2, p in enumerate(puntos_asignados_cluster, start=1):
+            if index2 % 4:
+                cadena_puntos = cadena_puntos + p.__str__()
+            else:
+                cadena_puntos = cadena_puntos + p.__str__() + "\n"
+        resultado_clusters.insert(INSERT, 'Lista de puntos asignados: ' +"\n" + cadena_puntos + '\n')
+        resultado_clusters.insert(INSERT, '\n')
+    resultado_clusters.grid(column=0, row=0)
+
+    cancelar_frame2 = Frame(tab2)
+    cancelar2 = tk.Button(cancelar_frame2, font=("Verdana", 10), text="Salir",
+                         command=ventana_resultdos.destroy).grid(row=0, column=0, pady=10)
+    cancelar_frame2.pack()
 
     tab_control.pack(expand=1, fill='both')
     print(datos_salida)
@@ -101,11 +137,9 @@ def clustering_manual():
     global input_var
     input_var = 0
     if '/' in path and num_clusters != 0 and num_iteraciones_totales > 0 and iteraciones >= 0:
-        # Ventana para asignacion de clusters
         ventana_clusters = Toplevel()
         ventana_clusters.title('Introducir circunferencia inicial')
         ventana_clusters.geometry('500x300+300+300')
-        # Frame para crear el formulario con las variables del algoritmo
         miFrame = Frame(ventana_clusters, width=50, height=50)
         miFrame.pack()
         label_clusters = Label(miFrame, text="Datos de la circunferencia: "+str(contador+1))
@@ -133,8 +167,7 @@ def clustering_manual():
         messagebox.showinfo('Alerta', 'Introduzca las variables para realizar el algoritmo.')
 
 
-def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones):
-    # Variables a modificar para el algoritmo
+def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones, ventana_configuracion):
     global num_clusters
     global num_iteraciones_totales
     global criterio_de_parada
@@ -148,7 +181,7 @@ def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, 
             iteraciones = int(cuadro_num_iteraciones.get())
             assert iteraciones > 0
         actualizar(listbox)
-        messagebox.showinfo('Notificacion', 'Se ha modificado correctamente.')
+        ventana_configuracion.destroy()
     except ValueError:
         messagebox.showinfo('Alerta', 'Introduce un numero.')
     except AssertionError:
@@ -156,11 +189,9 @@ def actualizar_variables(cuadro_num_clusters, cuadro_num_iteraciones_algoritmo, 
 
 
 def configuracion():
-    #Ventana para la configuracion de variables
     ventana_configuracion = Toplevel()
     ventana_configuracion.title('Configuración de variables')
     ventana_configuracion.geometry('650x300+300+300')
-    #Frame para crear el formulario con las variables del algoritmo
     miFrame = Frame(ventana_configuracion, width=50,height=50)
     miFrame.pack()
     label_configuracion = Label(miFrame, text="Configuración de variables")
@@ -168,7 +199,6 @@ def configuracion():
     label_configuracion.grid(row=0, column=0)
     label_configuracion.config(font=('Verdana', 15))
 
-    #Frame para formulario
     formulario = Frame(ventana_configuracion)
 
     variables_obligatorias = Frame(ventana_configuracion)
@@ -177,28 +207,24 @@ def configuracion():
     label_obligatorios.config(padx=10, pady=10, font=('Verdana', 9))
     variables_obligatorias.pack()
 
-    #Entrada para el numero de clusters
     label_num_clusters = Label(formulario, text="Número de clusters: **")
     label_num_clusters.grid(row=1, column=0)
     label_num_clusters.config(padx=10, pady=10, font=('Verdana', 9))
     cuadro_num_clusters = Entry(formulario)
     cuadro_num_clusters.grid(row=1, column=1)
 
-    # Entrada para las iteraciones totales del algoritmo
     label_num_iteraciones_algoritmo = Label(formulario, text="Número de pruebas a realizar: **")
     label_num_iteraciones_algoritmo.grid(row=2, column=0)
     label_num_iteraciones_algoritmo.config(padx=10, pady=10, font=('Verdana', 9))
     cuadro_num_iteraciones_algoritmo = Entry(formulario)
     cuadro_num_iteraciones_algoritmo.grid(row=2, column=1)
 
-    # Entrada para las iteraciones
     label_num_iteraciones = Label(formulario, text="Número de iteraciones: ")
     label_num_iteraciones.grid(row=3, column=0)
     label_num_iteraciones.config(padx=10, pady=10, font=('Verdana', 9))
     cuadro_num_iteraciones = Entry(formulario)
     cuadro_num_iteraciones.grid(row=3, column=1)
 
-    #Entrada para el criterio de parada
     radioValue = IntVar()
     Radiobutton(formulario, font=('Verdana', 9), text="Criterio de iteraciones", variable=radioValue,
                 value=0).grid(row=4, column=0)
@@ -206,11 +232,10 @@ def configuracion():
                 value=1).grid(row=4, column=1)
     formulario.pack()
 
-    #Botones
     configuracion_botones = Frame(ventana_configuracion)
     aceptar = tk.Button(configuracion_botones, font=("Verdana", 11), text="Aceptar",
                                  command=partial(actualizar_variables, cuadro_num_clusters,
-                                 cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones)).grid(row=0, column=0)
+                                 cuadro_num_iteraciones_algoritmo, radioValue, cuadro_num_iteraciones, ventana_configuracion)).grid(row=0, column=0)
     cancelar = tk.Button(configuracion_botones, font=("Verdana", 11), text="Cancelar", command=ventana_configuracion.destroy).grid(row=0, column=1)
     configuracion_botones.pack()
 
@@ -235,12 +260,10 @@ def actualizar(listbox):
 
 if __name__ == "__main__":
 
-    #Ventana principal
     root = tk.Tk()
     root.title('Proyecto IA 2020 - Clustering Bajo Incertidumbre')
     root.geometry('650x300+300+300')
 
-    #Variables para el algoritmo
     path = ''
     num_clusters = 0
     num_iteraciones_totales = 100 #100 Iteraciones del algoritmo por defecto
@@ -251,28 +274,17 @@ if __name__ == "__main__":
     input_var = 1 # Modo automatico, 0 --> Modo manual
     circunferencias_entrada = []
 
-
-    #Menu de la interfaz
-    # menu = Menu(root)
-    # file = Menu(root,font=("Verdana", 9))
-    # file.add_command(label='Seleccionar archivo', command=openFile)
-    # file.add_command(label='Configuración', command=configuracion)
-    # file.add_command(label='Salir', command=root.destroy)
-    # menu.add_cascade(label='Menu', menu=file,font=("Verdana", 9))
-    # root.config(menu=menu)
     menu = Menu(root)
     menu.add_command(label='Seleccionar CSV', command=openFile)
     menu.add_command(label='Configurar variables', command=configuracion)
     root.config(menu=menu)
 
-    #Frame para el inicio de la interfaz
     inicio = Frame(root)
     label_inicio = Label(inicio, text="Variables de ejecución")
     label_inicio.grid(row=0, column=0, pady=10)
     label_inicio.config(font=('Verdana', 15))
     inicio.pack()
 
-    #Listado de las variables para lanzar el algoritmo
     global listbox
     listbox = Listbox(root, font=("Verdana", 9), width=40, height=5)
     listbox.pack()
@@ -280,11 +292,9 @@ if __name__ == "__main__":
                  "Criterio de parada: ", "Número de iteraciones: "]:
         listbox.insert(END, item)
 
-    #Frame para separar los botones del listado de variables
     botones = Frame(root)
     f_automatica = tk.Button(botones, font=("Verdana", 10), text="Inicialización Automática", command=clustering_automatico).grid(row=0, column=0, pady=10)
     f_manual = tk.Button(botones, font=("Verdana", 10), text="Inicialización Manual", command=clustering_manual).grid(row=0, column=1, pady=10, padx=10)
-    # actualizar = tk.Button(botones, font=("Verdana", 10),  text="Actualizar Variables", command=partial(actualizar, listbox)).grid(row=0, column=3, pady=10)
     salir = Frame(root)
     cancelar = tk.Button(salir, font=("Verdana", 10), text="Salir",
                          command=root.destroy).grid(row=0, column=0, pady=10)
