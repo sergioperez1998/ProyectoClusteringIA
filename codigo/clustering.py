@@ -10,7 +10,6 @@ def clustering(iteraciones_prueba, datos_entrada, tipo_input, num_cluster, crite
     tiempo = time.time()
     for i in range(iteraciones_prueba):
         # 0. Leer datos
-        print(i)
         datos = leer_datos(datos_entrada)
 
         similitud_cluster = True
