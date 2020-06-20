@@ -2,6 +2,8 @@ from codigo.funcionesAuxiliares import *
 import time
 import copy
 
+#Algoritmo principal, realiza las llamadas a las funciones necesarias para obtener la salida esperada.
+#Cada una de estas funciones están descritas en el archivo codigo/funcionesAuxiliares.py
 def clustering(iteraciones_prueba, datos_entrada, tipo_input, num_cluster, criterio_parada, numero_iteraciones,
                circunferencias_entrada):
     estadisticas = []
