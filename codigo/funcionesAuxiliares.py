@@ -21,8 +21,9 @@ def leer_datos(path):
     return listado_puntos
 
 
-# Método que parte organiza los datos en 4 cuadrantes y circunferencias aleatorias dependiendo de la posición de los
-# puntos y del número de clusters que deseemos para obtener la solución optima.
+# Método que organiza los datos de entrada en 4 cuadrantes y genera circunferencias aleatorias
+# dependiendo de la dendidad de puntos que hay en los 4 cuadrantes. Este método es utilizado para inicializar las
+# circunferencias iniciales que son necesarias para ejecutar el algoritmo de manera automática.
 def inicializar_datos(datos_entrada, num_cluster, circunferencias):
     max_x_value = max(p.get_x() for p in datos_entrada)
     max_y_value = max(p.get_y() for p in datos_entrada)
@@ -57,8 +58,7 @@ def inicializar_datos(datos_entrada, num_cluster, circunferencias):
 
     cuadrantes.sort(key=len, reverse=True)
 
-    # cuadrantes_elegidos = cuadrantes.copy()  # abajoIzq  arribaDer
-    cuadrantes_elegidos = copy.deepcopy(cuadrantes)  # abajoIzq  arribaDer
+    cuadrantes_elegidos = copy.deepcopy(cuadrantes)
 
     num_cuadrantes = len(cuadrantes_elegidos)
     pesos = [[1.0], [0.80, 0.20], [0.50, 0.30, 0.20], [0.40, 0.30, 0.20, 0.10]]
@@ -75,7 +75,7 @@ def inicializar_datos(datos_entrada, num_cluster, circunferencias):
         circunferencias.append(encontrar_circulo(puntos[0], puntos[1], puntos[2]))
 
 
-# Objetivo específico 2 - Método Local: Aproximación basada en tres puntos alejados entre sí.
+# Método Local: Aproximación basada en tres puntos alejados entre sí.
 # Algoritmo para la obtención de circunferencias a partir de 3 puntos dados.
 def encontrar_circulo(punto1, punto2, punto3):
     x12 = punto1.get_x() - punto2.get_x()
@@ -90,10 +90,8 @@ def encontrar_circulo(punto1, punto2, punto3):
     x31 = punto3.get_x() - punto1.get_x()
     x21 = punto2.get_x() - punto1.get_x()
 
-    # x1^2 - x3^2
     sx13 = pow(punto1.get_x(), 2) - pow(punto3.get_x(), 2)
 
-    # y1^2 - y3^2
     sy13 = pow(punto1.get_y(), 2) - pow(punto3.get_y(), 2)
 
     sx21 = pow(punto2.get_x(), 2) - pow(punto1.get_x(), 2)
@@ -111,20 +109,18 @@ def encontrar_circulo(punto1, punto2, punto3):
     c = (-pow(punto1.get_x(), 2) - pow(punto1.get_y(), 2) -
          2 * g * punto1.get_x() - 2 * f * punto1.get_y())
 
-    # eqn of circle be x^2 + y^2 + 2*g*x + 2*f*y + c = 0
-    # where centre is (h = -g, k = -f) and
-    # radius r as r^2 = h^2 + k^2 - c
+    # La ecuación extendida de la circunferencia es: x^2 + y^2 + 2*g*x + 2*f*y + c = 0
+    # El centro de la circunferencia se obtiene de la siguiente forma: (h = -g, k = -f)
+    # El radio de l circunferencia se obtiene de la siguiente forma:  r^2 = h^2 + k^2 - c
     h = -g
     k = -f
-    sqr_of_r = h * h + k * k - c
+    raiz = h * h + k * k - c
 
-    # r is the radius
-    radio = round(sqrt(sqr_of_r), 5)
+    radio = round(sqrt(raiz), 5)
     centro = Punto(h, k)
     return Circunferencia(centro, radio)
 
 
-# Objetivo específico 3 - Calculo de los grados de pertenencia de un punto a un conjunto de clusters.
 # Calcula el grado de pertenencia de un punto a las circunferencias ya creadas, esto se calcula a partir de la distancia
 # de dicho punto al centro de la cada una de las circunferencias.
 def grado_pertenencia(punto, circunferencias):
