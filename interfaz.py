@@ -51,7 +51,7 @@ def mostrar_resultados(datos_salida):
     tab1 = tk.Frame(tab_control)
     tab_control.add(tab1, text='Estadísticas generales')
     tab2 = tk.Frame(tab_control)
-    tab_control.add(tab2, text='Clusters')
+    tab_control.add(tab2, text='Clústeres')
 
     title_frame = Frame(tab1)
     title_frame.pack()
@@ -62,7 +62,7 @@ def mostrar_resultados(datos_salida):
 
     title2_frame = Frame(tab2)
     title2_frame.pack()
-    label2_titulo = ttk.Label(title2_frame, text="Datos de los clusters")
+    label2_titulo = ttk.Label(title2_frame, text="Datos de los clústeres")
     label2_titulo.place(x=25, y=25, anchor="center")
     label2_titulo.grid(row=0, column=0, pady=10)
     label2_titulo.config(font=('Verdana', 15))
@@ -102,7 +102,7 @@ def mostrar_resultados(datos_salida):
     resultado_clusters.insert(INSERT, 'Puntos sin asignar: ' + str(puntos_sin_asignar) + '\n'+'\n')
 
     for index, n in enumerate(clusters, start= 0):
-        resultado_clusters.insert(INSERT, '----------------Cluster '+str(index+1)+"---------------"+ '\n')
+        resultado_clusters.insert(INSERT, '----------------Clúster '+str(index+1)+"---------------"+ '\n')
         resultado_clusters.insert(INSERT, 'Centro: ' + str(n.get_centro()) + '\n')
         resultado_clusters.insert(INSERT, 'Radio: ' + str(n.get_radio()) + '\n')
         puntos_asignados_cluster = n.get_lista_puntos()
@@ -231,7 +231,7 @@ def configuracion():
     label_obligatorios.config(padx=10, pady=10, font=('Verdana', 9))
     variables_obligatorias.pack()
 
-    label_num_clusters = Label(formulario, text="Número de clusters: **")
+    label_num_clusters = Label(formulario, text="Número de clústeres: **")
     label_num_clusters.grid(row=1, column=0)
     label_num_clusters.config(padx=10, pady=10, font=('Verdana', 9))
     cuadro_num_clusters = Entry(formulario)
@@ -271,7 +271,7 @@ def actualizar(listbox):
     ruta = 'Datos de entrada: '+ path.split('/')[-1]
     listbox.delete(1)
     listbox.insert(1, ruta)
-    clusters = "Número de clusters: " + str(num_clusters)
+    clusters = "Número de clústeres: " + str(num_clusters)
     listbox.delete(2)
     listbox.insert(2, clusters)
     criterio_parada = "Criterio de parada: "+ criterios[int(criterio_de_parada)]
@@ -312,7 +312,7 @@ if __name__ == "__main__":
     global listbox
     listbox = Listbox(root, font=("Verdana", 9), width=40, height=5)
     listbox.pack()
-    for item in ["Número de pruebas a realizar: ", "Datos de entrada: ", "Número de clusters: ",
+    for item in ["Número de pruebas a realizar: ", "Datos de entrada: ", "Número de clústeres: ",
                  "Criterio de parada: ", "Número de iteraciones: "]:
         listbox.insert(END, item)
 

@@ -72,12 +72,12 @@ def inicializar_datos(datos_entrada, num_cluster, circunferencias):
         while (puntos[0].get_x() == puntos[1].get_x() == puntos[2].get_x() or puntos[0].get_y() == puntos[1].get_y() ==
                puntos[2].get_y()) or (puntos[0] == puntos[1] or puntos[0] == puntos[2] or puntos[1] == puntos[2]):
             puntos = np.random.choice(cuadrantes_elegidos[i], 3, replace=False)
-        circunferencias.append(encontrar_circulo(puntos[0], puntos[1], puntos[2]))
+        circunferencias.append(encontrar_circunferencia(puntos[0], puntos[1], puntos[2]))
 
 
 # Método Local: Aproximación basada en tres puntos alejados entre sí.
-# Algoritmo para la obtención de circunferencias a partir de 3 puntos dados.
-def encontrar_circulo(punto1, punto2, punto3):
+# Algoritmo para la obtención de una circunferencia a partir de 3 puntos dados.
+def encontrar_circunferencia(punto1, punto2, punto3):
     x12 = punto1.get_x() - punto2.get_x()
     x13 = punto1.get_x() - punto3.get_x()
 
@@ -121,8 +121,8 @@ def encontrar_circulo(punto1, punto2, punto3):
     return Circunferencia(centro, radio)
 
 
-# Calcula el grado de pertenencia de un punto a las circunferencias ya creadas, esto se calcula a partir de la distancia
-# de dicho punto al centro de la cada una de las circunferencias.
+# Calcula el grado de pertenencia de un punto a las circunferencias ya creadas,
+# esto se calcula a partir de la distancia de dicho punto al centro de la cada una de las circunferencias.
 def grado_pertenencia(punto, circunferencias):
     grados_punto = []
     for circunferencia in circunferencias:
@@ -137,10 +137,10 @@ def grado_pertenencia(punto, circunferencias):
     punto.grado_pertenencia = grados_normalizados
 
 
-# Objetivo específico 4 - Actualización de cluster: Centro y radio. Se realiza la actualización de cada
-# circunferencia teniendo en cuenta los puntos que tienen un gran grado de pertenencia a la misma. Para actualizar
-# los centros se hace la media de valores en X e Y del conjunto de puntos. Y el radio se actualiza con la media de
-# distancias de cada punto al centro de la circunferencia.
+# Actualización de los cluster: Centro y radio. Se realiza la actualización de cada circunferencia
+# teniendo en cuenta los puntos que tienen un gran grado de pertenencia a la misma. Para actualizar
+# los centros se hace la media de valores en X e Y del conjunto de puntos. Y el radio se actualiza
+# con la media de distancias de cada punto al centro de la circunferencia.
 def actualizar_cluster(circunferencias, puntos):
     for index, cluster in enumerate(circunferencias, start=0):
         cercano_centro = []
@@ -170,16 +170,16 @@ def criterio_iteraciones(numero_iteraciones, datos_entrada, circunferencias):
         iteraciones = iteraciones + 1
 
         for p in datos_entrada:
-            # 2.1. actualizar grados de pertenencia de los puntos a las circunferencias
+            # 2. actualizar grados de pertenencia de los puntos a las circunferencias
             grado_pertenencia(p, circunferencias)
 
-    # 2.2. actualizar centros y radios
+    # 3. actualizar los clusters
     actualizar_cluster(circunferencias, datos_entrada)
 
     return iteraciones
 
 
-# Criterio avanzado, se realiza una copia de los datos anteriores a cada actualización para compararlos a posteriori
+# Criterio similitud, se realiza una copia de los datos anteriores a cada actualización para compararlos a posteriori
 # así podemos ver si los clusters se modifican despues de las actualizaciones.
 # 1. Lectura y tratamiento de datos
 # 2. Calcular grado de pertenencia de cada punto
@@ -194,22 +194,22 @@ def criterio_similitud(similitud_cluster, circunferencias, datos_entrada):
             tuplas.append((c.get_centro(), c.get_radio()))
 
         for p in datos_entrada:
-            # 2.1. actualizar grados de pertenencia de los puntos a las circunferencias
+            # 2. actualizar grados de pertenencia de los puntos a las circunferencias
             grado_pertenencia(p, circunferencias)
 
-        # 2.2. actualizar centros y radios
+        # 3. actualizar centros y radios
         actualizar_cluster(circunferencias, datos_entrada)
 
         # Comparamos el radio antiguo con el radio nuevo y miramos si la el centro no se ha movido si se da el caso
         # es que esa circunferencia no se ha modificado. En el momento que no se modifiquen ninguna termina el algoritmo
         criterio = []
         for index, cluster in enumerate(circunferencias, start=0):
-            new_centro = cluster.get_centro()
-            new_radio = cluster.get_radio()
-            old_centro = tuplas[index][0]
-            old_radio = tuplas[index][1]
-            dist = distancia_centro(new_centro, old_centro)
-            if (old_radio * 0.9 < new_radio < old_radio * 1.1) and dist == 0:
+            nuevo_centro = cluster.get_centro()
+            nuevo_radio = cluster.get_radio()
+            centro_antiguo = tuplas[index][0]
+            radio_antiguo = tuplas[index][1]
+            dist = distancia_centro(nuevo_centro, centro_antiguo)
+            if (radio_antiguo * 0.9 < nuevo_radio < radio_antiguo * 1.1) and dist == 0:
                 criterio.append(False)
             else:
                 criterio.append(True)
@@ -222,25 +222,25 @@ def criterio_similitud(similitud_cluster, circunferencias, datos_entrada):
     return iteraciones
 
 
-# Objetivo específico 5 - Asignar puntos y devolver los cluster Se asigna cada punto a las circunferencias que mayor
-# grado de pertenencia tenga, obteniendo el centro de la circunferencia y calculando la distancia a la misma para así
-# poder comparar si ese punto pertenece a esa circunferencia (si está en el rango de +- 25%)
+# Método que asigna cada punto a la circunferencia que tenga mayor grado de pertenencia.
+# Se compara la distancia del punto con el centro de la circunferencia con unos % arriba y abajo del radio de
+# la circunferencia.
 def asignar_puntos(circunferencias, puntos, estadisticas):
     puntos_asignados = 0
     for p in puntos:
-        max_value = max(p.get_grado_pertenencia())
-        max_index = p.get_grado_pertenencia().index(max_value)
-        dist_centro = distancia_centro(p, circunferencias[max_index].get_centro())
-        radio = circunferencias[max_index].get_radio()
+        valor_max = max(p.get_grado_pertenencia())
+        indice_maximo = p.get_grado_pertenencia().index(valor_max)
+        dist_centro = distancia_centro(p, circunferencias[indice_maximo].get_centro())
+        radio = circunferencias[indice_maximo].get_radio()
         radio_arriba = radio * 1.15 #1.05 1.15 1.25
         radio_abajo = radio * 0.85 #0.95 0.85 0.75
         if radio_abajo < dist_centro < radio_arriba:
-            circunferencias[max_index].get_lista_puntos().append(p)
+            circunferencias[indice_maximo].get_lista_puntos().append(p)
             puntos_asignados = puntos_asignados + 1
     estadisticas.append([len(puntos) - puntos_asignados, circunferencias])
 
 
-# Se muestran los resultados de cada una de las circunferencias y se dibuja la gráfica.
+# Se muestran los resultados de cada una del algoritmo.
 def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_prueba, tiempo):
     resultados_interfaz = []
     # Estadísticas generales de la prueba
@@ -304,11 +304,11 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
         print(puntos_str)
         print("")
         num_puntos_asignados_totales = num_puntos_asignados_totales + len(c.get_lista_puntos())
-        colour = np.random.rand(3, )
+        color = np.random.rand(3, )
         circle = plt.Circle((c.get_centro().get_x(), c.get_centro().get_y()), radius=c.get_radio(), facecolor='none',
-                            edgecolor=colour)
+                            edgecolor=color)
         for p in c.get_lista_puntos():
-            plt.plot(p.get_x(), p.get_y(), marker='s', linestyle='-', color=colour)
+            plt.plot(p.get_x(), p.get_y(), marker='s', linestyle='-', color=color)
 
         plt.gcf().gca().add_artist(circle)
 
@@ -318,14 +318,14 @@ def mostrar_resultados(datos_entrada, estadisticas, iteraciones, iteraciones_pru
     resultados_interfaz.append(puntos_sin_asignar)
     resultados_interfaz.append(datos_entrada)
 
-    frame_info = inspect.stack().__str__()
-    if frame_info.__contains__("consola.py"):
+    informacion_frame = inspect.stack().__str__()
+    if informacion_frame.__contains__("consola.py"):
         plt.show()
 
     return resultados_interfaz
 
 
-# Método para calcular la distancia entre 2 puntos
+# Método para calcular la distancia entre 2 puntos dados
 def distancia_centro(punto1, punto2, centro=False, radio=0):
     a = np.array((punto1.get_x(), punto1.get_y()))
     b = np.array((punto2.get_x(), punto2.get_y()))

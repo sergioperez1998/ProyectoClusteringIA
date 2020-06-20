@@ -3,8 +3,8 @@ import numpy as np
 import csv
 import matplotlib.pyplot as plt
 
-
-def circulos_pseudo_aleatorios(circulos, max_radio, archivo):
+#Método que genera circunferencias dados una lista de puntos, un radio maximo y la ruta para guardar el resultado
+def circunferencias_pseudo_aleatorias(circulos, max_radio, archivo):
     x_datos = []
     y_datos = []
     with open(archivo, 'w', newline='') as file:
@@ -32,4 +32,5 @@ max_radio = 10
 for z in range(num_cluster):
     circulos.append([random.randint(1, 50), random.randint(1, 50)])
 
-circulos_pseudo_aleatorios(circulos, max_radio, 'C:\\Users\\adria\\PycharmProjects\\ProyectoClustering\\data\\test.csv')
+#Poner la ruta específica para guardar el resultado.
+circunferencias_pseudo_aleatorias(circulos, max_radio, 'C:\\Users\\adria\\PycharmProjects\\ProyectoClustering\\data\\test.csv')
