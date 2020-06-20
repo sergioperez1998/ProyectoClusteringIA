@@ -232,6 +232,7 @@ def asignar_puntos(circunferencias, puntos, estadisticas):
         indice_maximo = p.get_grado_pertenencia().index(valor_max)
         dist_centro = distancia_centro(p, circunferencias[indice_maximo].get_centro())
         radio = circunferencias[indice_maximo].get_radio()
+	    #Se ajusta el umbral al 15% por defecto, cambiar en las siguientes lineas el umbral para realizar pruebas con otros umbrales.
         radio_arriba = radio * 1.15 #1.05 1.15 1.25
         radio_abajo = radio * 0.85 #0.95 0.85 0.75
         if radio_abajo < dist_centro < radio_arriba:
