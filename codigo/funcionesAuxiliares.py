@@ -121,7 +121,6 @@ def encontrar_circulo(punto1, punto2, punto3):
     # r is the radius
     radio = round(sqrt(sqr_of_r), 5)
     centro = Punto(h, k)
-
     return Circunferencia(centro, radio)
 
 
@@ -148,17 +147,17 @@ def grado_pertenencia(punto, circunferencias):
 # distancias de cada punto al centro de la circunferencia.
 def actualizar_cluster(circunferencias, puntos):
     for index, cluster in enumerate(circunferencias, start=0):
-        n_centro = []
+        cercano_centro = []
         for j in puntos:
             if j.get_grado_pertenencia()[index] > 1 / len(circunferencias):
-                n_centro.append(j)
+                cercano_centro.append(j)
 
-        if len(n_centro) > 0:
-            cluster.centro = Punto(sum(p.get_x() for p in n_centro) / len(n_centro),
-                                   sum(p.get_y() for p in n_centro) / len(n_centro))
+        if len(cercano_centro) > 0:
+            cluster.centro = Punto(sum(p.get_x() for p in cercano_centro) / len(cercano_centro),
+                                   sum(p.get_y() for p in cercano_centro) / len(cercano_centro))
 
             d_centro = []
-            for k in n_centro:
+            for k in cercano_centro:
                 dist_centro = distancia_centro(k, cluster.get_centro())
                 d_centro.append(dist_centro)
 
@@ -237,8 +236,8 @@ def asignar_puntos(circunferencias, puntos, estadisticas):
         max_index = p.get_grado_pertenencia().index(max_value)
         dist_centro = distancia_centro(p, circunferencias[max_index].get_centro())
         radio = circunferencias[max_index].get_radio()
-        radio_arriba = radio * 1.25
-        radio_abajo = radio * 0.75
+        radio_arriba = radio * 1.15 #1.05 1.15 1.25
+        radio_abajo = radio * 0.85 #0.95 0.85 0.75
         if radio_abajo < dist_centro < radio_arriba:
             circunferencias[max_index].get_lista_puntos().append(p)
             puntos_asignados = puntos_asignados + 1

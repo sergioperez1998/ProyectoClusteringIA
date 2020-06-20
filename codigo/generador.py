@@ -4,21 +4,6 @@ import csv
 import matplotlib.pyplot as plt
 
 
-def circulos_aleatorios(max_x, max_y, max_radio, num_circunferencias, archivo):
-    with open(archivo, 'w', newline='') as file:
-        writer = csv.writer(file)
-        for i in range(num_circunferencias):
-            radio = random.randint(1, max_radio)
-            num_puntos = random.randint(5, 30)
-            centro = [random.randint(1, max_x), random.randint(1, max_y)]
-            puntos = np.linspace(0, 2 * np.pi, num_puntos)
-            x = centro[0] + radio * np.cos(puntos)
-            y = centro[1] + radio * np.sin(puntos)
-
-            for j in range(num_puntos):
-                writer.writerow([x[j], y[j]])
-
-
 def circulos_pseudo_aleatorios(circulos, max_radio, archivo):
     x_datos = []
     y_datos = []
@@ -41,8 +26,10 @@ def circulos_pseudo_aleatorios(circulos, max_radio, archivo):
     plt.show()
 
 
-# circulos_aleatorios(30, 30, 20, 5, 'test.csv')
+num_cluster = 5
 circulos = []
-for z in range(5):
+max_radio = 10
+for z in range(num_cluster):
     circulos.append([random.randint(1, 50), random.randint(1, 50)])
-circulos_pseudo_aleatorios(circulos, 12, 'C:\\Users\\adria\\PycharmProjects\\ProyectoClustering\\data\\test.csv')
+
+circulos_pseudo_aleatorios(circulos, max_radio, 'C:\\Users\\adria\\PycharmProjects\\ProyectoClustering\\data\\test.csv')

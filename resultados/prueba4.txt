@@ -1,0 +1,19 @@
+Número de pruebas realizadas:  1000
+Tiempo de ejecución: 2.528196334838867 segundos
+Mínimo de puntos sin asignar: 0
+Máximo de puntos sin asignar: 0
+Media de puntos sin asignar: 0.0
+Iteraciones del resultado elegido: 2
+-- Clúster: 1 --
+Centro: [8.95,5.0625]
+Radio: 1.9884534426156923
+Puntos asignados: 8
+[9.0,7.0][7.7,6.5][7.0,5.0][11.0,5.0][9.0,3.0]
+[10.3,3.5][7.3,4.0][10.3,6.5]
+-- Clúster: 2 --
+Centro: [1.9874999999999998,1.9875]
+Radio: 0.9985099503625606
+Puntos asignados: 8
+[3.0,2.0][2.0,3.0][1.0,2.0][2.0,1.0][1.2,1.4]
+[1.2,2.6][2.7,1.3][2.8,2.6]
+Puntos sin asignar: 0
